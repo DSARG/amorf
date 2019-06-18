@@ -1,0 +1,26 @@
+1.	Abstract
+
+2.	Introduction
+	a.	Motivation
+	b.	Thesis Content
+
+3.	Related work
+	a.	Multi-output regression models
+	b.	Existing frameworks/tools for multi-output regression (and their limitations)
+
+4.	Optional: novel multi-output regression algorithm
+
+5.	Optional: new metric to measure performance of multi-output regression
+
+6.	Framework
+	a.	Requirements Elicitation
+	b.	System Design/Object Design
+	c.	Implementation
+	i.	Introduce tools
+
+7.	Experiments
+	a.	Dataset(s)
+	b.	Metrics
+	c.	Highlight advantages/features of your framework
+
+8.	Conclusion
