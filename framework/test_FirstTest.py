@@ -8,10 +8,7 @@ import arff, numpy as np
 from sklearn.preprocessing import normalize
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import make_regression  
-from sklearn.multioutput import MultiOutputRegressor
-from sklearn.ensemble import GradientBoostingRegressor 
 
-import numpy as np
 from numpy import mean 
 
 import datasets as ds 
