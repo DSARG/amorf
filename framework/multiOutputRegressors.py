@@ -6,8 +6,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR 
 #For the MLP
 from sklearn.neural_network import MLPRegressor 
+#For MORT 
+from sklearn.tree import DecisionTreeRegressor
 #For the NN
-from sklearn.preprocessing import normalize
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -48,6 +49,7 @@ class SingleTargetMethod:
         result = self.MORegessor.predict(X_test) 
         return result
 
+# Wrapper around sklearns DecisionTreeRegressor https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
 class MultiLayerPerceptron: 
     def __init__(self,hidden_layer_sizes=(100, ), activation='relu', solver='adam', alpha=0.0001, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, power_t=0.5, max_iter=200, shuffle=True, random_state=None, tol=0.0001, verbose=False, warm_start=False, momentum=0.9, nesterovs_momentum=True, early_stopping=False, validation_fraction=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08): 
         super().__init__() 
@@ -59,7 +61,20 @@ class MultiLayerPerceptron:
     
     def predict(self, X_test): 
         result = self.mlp.predict(X_test)
-        return result 
+        return result  
+
+# Wrapper around sklearns DecisionTreeRegressor https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor
+class MultiOutputRegressionTree: 
+    def __init__(self, criterion="mse",splitter="best",max_depth=None, min_samples_split=2,min_samples_leaf=1,min_weight_fraction_leaf=0.,max_features=None,random_state=None,max_leaf_nodes=None,min_impurity_decrease=0.,min_impurity_split=None,presort=False): 
+        super().__init__() 
+        self.mort = DecisionTreeRegressor(criterion,splitter,max_depth,min_samples_split,min_samples_leaf,min_weight_fraction_leaf,max_features,random_state,max_leaf_nodes,min_impurity_decrease,min_impurity_split,presort)
+
+    def fit(self, X_train, y_train): 
+        self.mort.fit(X_train,y_train)
+        return self.mort 
+
+    def predict(self, X_test): 
+        return self.mort.predict(X_test)
 
 class NeuronalNetRegressor: 
     DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -82,13 +97,13 @@ class NeuronalNetRegressor:
         
         if self.selector == 'nn': 
             self.model = self.NeuronalNet(n_features,n_targets)
-            #Normalize numpy arrays and convert to tensor 
-            X_train_t = torch.from_numpy(normalize(X_train)).float()
+            #convert numpy arrays to tensor 
+            X_train_t = torch.from_numpy(X_train).float()
             y_train_t = torch.from_numpy(y_train).float()
         elif self.selector == 'cnn':
             self.model = self.ConvNet(n_features, n_targets)
-            #Normalize numpy arrays and convert to tensor 
-            X_train_t = torch.from_numpy(normalize(X_train)).float().reshape(n_samples,1,n_features)
+            #convert numpy arrays to tensor 
+            X_train_t = torch.from_numpy(X_train).float().reshape(n_samples,1,n_features)
             y_train_t = torch.from_numpy(y_train).float()
 
         #Calculate on GPU if possible
@@ -119,9 +134,9 @@ class NeuronalNetRegressor:
         n_samples = len(X_test) 
         n_features = len(X_test[0])
         if self.selector == 'nn': 
-            X_test_t = torch.from_numpy(normalize(X_test)).float() 
+            X_test_t = torch.from_numpy(X_test).float() 
         elif self.selector == 'cnn': 
-            X_test_t = torch.from_numpy(normalize(X_test)).float().reshape(n_samples,1,n_features)
+            X_test_t = torch.from_numpy(X_test).float().reshape(n_samples,1,n_features)
         self.model.eval() 
         with torch.no_grad(): 
             y_pred_t = self.model(X_test_t) 

@@ -27,7 +27,7 @@ class NeuronalNet(nn.Module):
 
     def forward(self, x):
         out = self.normalization(x) 
-        out = self.fc2(x)
+        out = self.fc2(out)
         return out
 
 ''' average relative root mean squared error''' 

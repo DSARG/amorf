@@ -1,5 +1,7 @@
 import numpy as np 
 import arff
+
+#Targets 16, Attributes 14 , Instances 
 def load_WQ():
     dataset = arff.load(open('wq.arff'))
     data = np.array(dataset['data'])
