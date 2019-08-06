@@ -8,7 +8,8 @@ def load_WQ():
     X = data[:,16:30] 
     y = data[:,0:16] 
     return X,y 
-    
+
+#Targets 16    
 def load_RF1(): 
     dataset = arff.load(open('rf1.arff')) 
     data = np.array(dataset['data'])
