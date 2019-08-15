@@ -228,3 +228,79 @@ class ConvNet(nn.Module):
     def convert_test_set_to_tensor(self,X_test): 
         X_test_t = torch.from_numpy(X_test).float().reshape(len(X_test),1,len(X_test[0]))
         return X_test_t
+
+
+class MLSSVR: 
+    def __init__(self, kernel_param1, kernel_param2, kernel_selector = "linear"): 
+        self.kernel_selector = kernel_selector 
+        self.kernel_param1 = kernel_param1 
+        self.kernel_param2 = kernel_param2
+
+    def kernel_function(self, kernel_selector, X, Z, param1, param2): 
+        
+        if(len(X[0,:]) != len(Z[0,:])): 
+            raise ValueError('2nd Dimension of X and Z must match') 
+        
+        if kernel_selector.lower() == 'linear':
+            K = X @ Z.T
+        elif kernel_selector.lower() == 'poly':
+            K = (X @ Z.T + param1)**param2
+
+        #elif kernel_selector.lower() == 'rbf': 
+        #    K = rbf_kernel(X,Z,gamma=param1)
+        #
+        #elif kernel_selector.lower() is 'erbf':
+        elif kernel_selector.lower() == 'sigmoid': 
+            K = np.tanh(param1 * X @ Z.T / len(X[0]) + param2)
+        else:  
+            raise ValueError('Unknown kernel method: {}'.format(kernel_selector))
+        
+        return K  
+
+    def fit(self, X_train, y_train,gamma,lambd): 
+        self.gamma = gamma 
+        self.lambd = lambd 
+        if(len(X_train) != len(y_train)): 
+            raise ValueError('Sample size of inputs does not match') 
+
+        l = y_train.shape[0]
+        m = y_train.shape[1] 
+        K = self.kernel_function(self.kernel_selector,X_train,X_train,self.kernel_param1,self.kernel_param2) 
+        H = np.tile(K,(m,m)) + np.eye(m*l) / gamma  
+
+        P = np.zeros((m*l,m)) 
+        for t in range(m): #Verify complete section
+            idx1 = l * (t)
+            idx2 = l * (t+1)
+            H[idx1: idx2, idx1: idx2] = H[idx1: idx2, idx1: idx2] + K*(m/lambd)
+            P[idx1:idx2, t] = np.ones(l) 
+        
+        eta = np.linalg.lstsq(H,P) 
+        nu = np.linalg.lstsq(H,y_train.flatten()) #CHECK 
+        S = P.T @ eta[0]
+        b =  np.linalg.inv(S) @ eta[0].T @ y_train.flatten()
+        alpha = nu[0] - eta[0] @ b 
+
+        alpha = alpha.reshape(l,m)
+        self.alpha = alpha 
+        self.b = b
+        return self 
+
+    def predict(self,X_test,X_train,y_test): 
+        if(len(y_test[0,:]) != np.size(self.b)): 
+            raise ValueError('Nnumber of columns in y_test and b must be equal.') 
+        m,l = len(y_test[0,:]), len(X_train)
+
+        if(len(self.alpha) != l or len(self.alpha[0]) != m): 
+            raise ValueError('The size of slpha should be {} * {}'.format(l,m)) 
+        
+        N_test = len(X_test) 
+        b = self.b.flatten() 
+
+        K = self.kernel_function(self.kernel_selector,X_test,X_train,self.kernel_param1,self.kernel_param2); 
+        t0 = np.sum(K @ self.alpha, axis=1)
+        t1 =  np.tile(t0,(m,1)).T 
+        t2 =  K @ self.alpha * (m/self.lambd)
+        t3 =  np.tile(b.T, (N_test,1)) 
+        y_pred = t1 + t2 + t3
+        return y_pred
