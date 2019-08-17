@@ -17,8 +17,10 @@ import torch.optim as optim
 import error as er
 import earlyStopping as early  
 from abstract_NeuronalNet import AbstractNeuronalNet
-from numpy import mean 
-from sklearn.model_selection import train_test_split
+from numpy import mean  
+import numpy as np
+from sklearn.model_selection import train_test_split 
+import traceback
 
 # TODO: Add MOSVR as Whole new Method 
 # TODO: Add MO-RegTree   
@@ -92,7 +94,7 @@ class MultiOutputRegressionTree:
 class NeuronalNetRegressor: 
     DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    def __init__(self,model,patience=5,learning_rate=0.01, print_after_epochs=10): 
+    def __init__(self,model,patience=5,learning_rate=0.01, print_after_epochs=10, batch_size=None): 
         if not isinstance(model, nn.Module):
             raise ValueError('\'{}\' is not a valid instance of pytorch.nn'.format(model))
         
@@ -100,7 +102,8 @@ class NeuronalNetRegressor:
         self.loss_fn = nn.MSELoss()
         self.patience = patience 
         self.learning_rate = learning_rate  
-        self.print_after_epochs = print_after_epochs
+        self.print_after_epochs = print_after_epochs 
+        self.batch_size = batch_size
 
     def fit(self,X_train,y_train):
         n_samples,n_features ,n_targets = len(X_train), len(X_train[0]), len(y_train[0])
@@ -117,15 +120,18 @@ class NeuronalNetRegressor:
         self.model.train() 
         stopper = early.earlyStopping(self.patience) 
         stop = False
-        epochs = 0
+        epochs = 0 
+
+        X_train_t_batched,y_train_t_batched = self.split_train_to_batches(X_train_t,y_train_t,self.batch_size)
         
         while(stop == False):
             #train
-            self.optimizer.zero_grad()
-            y_pred_train = self.model(X_train_t)
-            loss = self.loss_fn(y_pred_train, y_train_t)
-            loss.backward() 
-            self.optimizer.step() 
+            for batch_X, batch_y in zip(X_train_t_batched,y_train_t_batched):
+                self.optimizer.zero_grad()
+                y_pred_train = self.model(batch_X)
+                loss = self.loss_fn(y_pred_train, batch_y)
+                loss.backward() 
+                self.optimizer.step() 
             #caculate validation loss an perform early stopping  
             y_pred_val = self.model(X_validate_t)
             validation_loss = self.loss_fn(y_pred_val,y_validate_t)
@@ -143,6 +149,12 @@ class NeuronalNetRegressor:
         
         return self
 
+    def split_train_to_batches(self,X_train_t,y_train_t,batch_size): 
+        if batch_size == None: 
+            return torch.split(X_train_t, len(X_train_t)), torch.split(y_train_t, len(X_train_t))  
+        else: 
+            return torch.split(X_train_t, batch_size),torch.split(y_train_t, batch_size)
+
     def predict(self, X_test):
         n_samples = len(X_test) 
         n_features = len(X_test[0])
@@ -152,7 +164,20 @@ class NeuronalNetRegressor:
         with torch.no_grad(): 
             y_pred_t = self.model(X_test_t) 
         
-        return y_pred_t.detach().numpy()
+        return y_pred_t.detach().numpy() 
+    
+    def save(self, store_path): 
+        try:
+            torch.save(model, store_path + '.ckpt') 
+        except Exception: 
+            print(traceback.format_exc())
+    
+    def load(self, load_path): 
+        try: 
+            self.model = torch.load(load_path)   
+            return self 
+        except Exception: 
+            print(traceback.format_exc())
 
 @AbstractNeuronalNet.register
 class NeuronalNet(nn.Module):

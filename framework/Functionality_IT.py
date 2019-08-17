@@ -4,23 +4,25 @@ import multiOutputRegressors as mor
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
 
-X,y = ds.load_EDM()
+X,y = ds.load_WQ()
 
 X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2) 
-
+print('MLSSVR')
+print(er.average__relative_root_mean_squared_error(y_test,mor.MLSSVR(0,0,'linear').fit(X_train, y_train,0.5,4).predict(X_test,X_train,y_test)))
 print("Single Target Methods") 
 custom = RidgeCV()
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('linear').fit(X_train, y_train).predict(X_test)))
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod(custom_regressor = custom).fit(X_train, y_train).predict(X_test)))
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('xgb').fit(X_train, y_train).predict(X_test)))
 
+
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('kneighbors').fit(X_train, y_train).predict(X_test)))
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('adaboost').fit(X_train, y_train).predict(X_test)))
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('mlp').fit(X_train, y_train).predict(X_test)))
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('svr').fit(X_train, y_train).predict(X_test)))
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod().fit(X_train, y_train).predict(X_test)))  
-''' 
 
+''' 
 
 print('MO-RT') 
 print(er.average__relative_root_mean_squared_error(y_test,mor.MultiOutputRegressionTree().fit(X_train,y_train).predict(X_test)))

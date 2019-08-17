@@ -85,7 +85,10 @@ class TestNeuronalNet(unittest.TestCase):
         self.assertEqual(result.shape, (len(self.X_test),len(self.y_test[0,:]))) 
         self.assertTrue(type(result) is numpy.ndarray) 
         self.assertTrue(result.dtype is numpy.dtype('float32') or result.dtype is numpy.dtype('float64'))
-'''
+''' 
+    #def test_batch_functionality(self): 
+
+    #def test_save_load(self):
 
 if __name__ == '__main__':
     unittest.main()
