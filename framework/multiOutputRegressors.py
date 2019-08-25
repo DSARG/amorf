@@ -181,7 +181,7 @@ class NeuronalNetRegressor:
 
 @AbstractNeuronalNet.register
 class NeuronalNet(nn.Module):
-    def __init__(self, input_dim, output_dim,selector='max'): 
+    def __init__(self, input_dim, output_dim,selector='max',p_dropout_1=0.5,p_dropout_2=0.5): 
         MIDDLE_LAYER_NEURON_CALCULATION ={ 
             'mean': mean([input_dim,output_dim]), 
             'max' :  max([input_dim,output_dim]), 
@@ -189,7 +189,9 @@ class NeuronalNet(nn.Module):
         }
         super().__init__() 
         if selector not in MIDDLE_LAYER_NEURON_CALCULATION: 
-            raise ValueError('Selector \'{}\' is not valid')
+            raise ValueError('Selector \'{}\' is not valid') 
+        self.dropout_1 = p_dropout_1 
+        self.dropout_2 = p_dropout_2
 
         middleLayerNeurons = int(MIDDLE_LAYER_NEURON_CALCULATION[selector])
         self.batchNorm = nn.BatchNorm1d(middleLayerNeurons)
@@ -202,11 +204,11 @@ class NeuronalNet(nn.Module):
         out = self.fc1(x)  
         out = self.batchNorm(out)  
         out = F.relu(out) 
-        out = F.dropout(out,0.2) 
+        out = F.dropout(out,self.dropout_1) 
         out = self.fc2(out) 
         out = self.batchNorm(out)  
         out = F.relu(out) 
-        out = F.dropout(out,0.2)
+        out = F.dropout(out,self.dropout_2)
         out = self.fc3(out)
 
         return out 
@@ -222,18 +224,20 @@ class NeuronalNet(nn.Module):
 
 @AbstractNeuronalNet.register
 class ConvNet(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super().__init__() 
+    def __init__(self, input_dim, output_dim,p_dropout=0.5):
+        super().__init__()  
+        self.p_dropout = p_dropout
+        width_out = self.get_output_size(input_dim)
         self.layer1 = nn.Sequential(
             nn.Conv1d(1, 24, kernel_size=2, stride=2, padding=0),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=1))
+            nn.MaxPool1d(kernel_size=3, stride=2))
         self.layer2 = nn.Sequential(
-            nn.Conv1d(24, 64, kernel_size=2, stride=1, padding=0),
+            nn.Conv1d(24, 64, kernel_size=2, stride=2, padding=0),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2))
-        self.drop_out = nn.Dropout()
-        self.fc1 = nn.Linear(64*15, 100)
+            nn.MaxPool1d(kernel_size=3, stride=2))
+        self.drop_out = nn.Dropout(self.p_dropout)
+        self.fc1 = nn.Linear(64*width_out, 100)
         self.fc2 = nn.Linear(100, output_dim)
     
     def forward(self, x):
@@ -252,7 +256,27 @@ class ConvNet(nn.Module):
 
     def convert_test_set_to_tensor(self,X_test): 
         X_test_t = torch.from_numpy(X_test).float().reshape(len(X_test),1,len(X_test[0]))
-        return X_test_t
+        return X_test_t 
+
+    def get_output_size(self,input_dim): 
+        k_c_1 = 2
+        k_p_1 = 3
+        k_c_2 = 2
+        k_p_2 = 3
+        s_c_1 = 2
+        s_c_2 = 2
+        s_p_1 = 2
+        s_p_2 = 2  
+        wk1 = self.get_size(input_dim,k_c_1,0,s_c_1) 
+        wp1 = self.get_size(wk1,k_p_1,0,s_p_1) 
+        wk2 = self.get_size(wp1,k_c_2,0,s_c_2) 
+        wp2 = self.get_size(wk2,k_p_2,0,s_p_2) 
+        return int(wp2)
+
+    def get_size(self,w,k,p=0,s=0):
+        return ((w-k+2*p)/s) +1
+
+
 
 
 class MLSSVR: 
