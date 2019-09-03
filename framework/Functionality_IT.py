@@ -4,11 +4,11 @@ import multiOutputRegressors as mor
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
 
-X,y = ds.load_WQ()
+X,y = ds.load_RF1()
 
 X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2) 
-print('MLSSVR')
-print(er.average__relative_root_mean_squared_error(y_test,mor.MLSSVR(0,0,'linear').fit(X_train, y_train,0.5,4).predict(X_test,X_train,y_test)))
+#print('MLSSVR')
+#print(er.average__relative_root_mean_squared_error(y_test,mor.MLSSVR(0,0,'linear').fit(X_train, y_train,0.5,4).predict(X_test,X_train,y_test)))
 print("Single Target Methods") 
 custom = RidgeCV()
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('linear').fit(X_train, y_train).predict(X_test)))
@@ -22,15 +22,16 @@ print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('svr').fit(X_train, y_train).predict(X_test)))
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod().fit(X_train, y_train).predict(X_test)))  
 
-''' 
 
 print('MO-RT') 
 print(er.average__relative_root_mean_squared_error(y_test,mor.MultiOutputRegressionTree().fit(X_train,y_train).predict(X_test)))
 print("MO-MLP")
 print(er.average__relative_root_mean_squared_error(y_test,mor.MultiLayerPerceptron().fit(X_train, y_train).predict(X_test))) 
 
+'''
 print("MO-NN") 
 print(er.average__relative_root_mean_squared_error(y_test,mor.NeuronalNetRegressor(patience=2,selector='nn').fit(X_train, y_train).predict(X_test))) 
-print("MO-CNN") 
-print(er.average__relative_root_mean_squared_error(y_test,mor.NeuronalNetRegressor(patience=5,selector='cnn').fit(X_train, y_train).predict(X_test)))
 '''
+print("MO-CNN") 
+model = mor.ConvNet(input_dim=len(X_train[0]),output_dim=len(y_train[0]))
+print(er.average__relative_root_mean_squared_error(y_test,mor.NeuronalNetRegressor(patience=3,model = model).fit(X_train, y_train).predict(X_test)))
