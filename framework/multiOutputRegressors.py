@@ -20,7 +20,7 @@ from abstract_NeuronalNet import AbstractNeuronalNet
 from numpy import mean  
 import numpy as np
 from sklearn.model_selection import train_test_split 
-import traceback
+import traceback 
 
 # TODO: Add MOSVR as Whole new Method 
 # TODO: Add MO-RegTree   
@@ -99,7 +99,7 @@ class NeuronalNetRegressor:
             raise ValueError('\'{}\' is not a valid instance of pytorch.nn'.format(model))
         
         self.model = model
-        self.loss_fn = nn.MSELoss()
+        self.loss_fn = er.tensor_average__relative_root_mean_squared_error #nn.MSELoss()
         self.patience = patience 
         self.learning_rate = learning_rate  
         self.print_after_epochs = print_after_epochs 
@@ -138,13 +138,15 @@ class NeuronalNetRegressor:
             stop = stopper.stop(validation_loss)
             
             if epochs % self.print_after_epochs == 0:
-                validation_error = er.average__relative_root_mean_squared_error(y_validate,y_pred_val.detach().numpy()) 
-                train_error = er.average__relative_root_mean_squared_error(y_train,y_pred_train.detach().numpy()) 
+                y_pred_train = self.model(X_train_t)
+                validation_error = er.tensor_average__relative_root_mean_squared_error(y_pred_val,y_validate_t) 
+                train_error = er.tensor_average__relative_root_mean_squared_error(y_pred_train,y_train_t) 
                 print('Validation Error: {} \nTrain Error: {}'.format(validation_error,train_error))
             epochs += 1 
             
-        final_train_error = er.average__relative_root_mean_squared_error(y_train,y_pred_train.detach().numpy())  
-        final_validation_error = er.average__relative_root_mean_squared_error(y_validate,y_pred_val.detach().numpy()) 
+        y_pred_train = self.model(X_train_t) 
+        final_train_error = er.tensor_average__relative_root_mean_squared_error(y_pred_train,y_train_t)  
+        final_validation_error = er.tensor_average__relative_root_mean_squared_error(y_pred_val,y_validate_t) 
         print("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(epochs,final_train_error,final_validation_error))  
         
         return self
@@ -168,7 +170,7 @@ class NeuronalNetRegressor:
     
     def save(self, store_path): 
         try:
-            torch.save(model, store_path + '.ckpt') 
+            torch.save(self.model, store_path + '.ckpt') 
         except Exception: 
             print(traceback.format_exc())
     
