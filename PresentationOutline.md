@@ -41,7 +41,9 @@ Construction of a Python package that includes several methods for multi-output 
 * https://www.researchgate.net/publication/263813673_A_Review_On_Multi-Label_Learning_Algorithms - useless 
 * https://www.semanticscholar.org/paper/Multi-Label-Classification-Methods-for-Multi-Target-Xioufis-Groves/5ae7139ba40efeee40c2d6ac22666370b91ce77d - see 3.0
 
-#### Regression Trees 
+#### Regression Trees  
+* https://towardsdatascience.com/https-medium-com-lorrli-classification-and-regression-analysis-with-decision-trees-c43cdbc58054 
+* https://machinelearningmastery.com/classification-and-regression-trees-for-machine-learning/ 
 #### Neuronal Nets  
 * Structure of the Nets  
 * Structure of Code (Estimator that works with different models)
