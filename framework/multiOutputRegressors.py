@@ -20,7 +20,9 @@ from abstract_NeuronalNet import AbstractNeuronalNet
 from numpy import mean  
 import numpy as np
 from sklearn.model_selection import train_test_split 
-import traceback 
+import traceback  
+
+import sklearn.metrics.pairwise.rbf_kernel as rbf_kernel
 
 # TODO: Add MOSVR as Whole new Method 
 # TODO: Add MO-RegTree   
@@ -36,8 +38,8 @@ class SingleTargetMethod:
             'adaboost' : AdaBoostRegressor(), 
             'gradientboost' : GradientBoostingRegressor(), 
             'mlp' : MLPRegressor(solver='adam', alpha=1e-5, hidden_layer_sizes=(15,), random_state=1),
-            'svr' : SVR(), 
-            'xgb' : xgb.XGBRegressor(objective ='reg:squarederror', colsample_bytree = 1, learning_rate = 0.2,max_depth = 6, alpha = 10, n_estimators = 10)
+            'svr' : SVR(gamma='auto'), 
+            'xgb' : xgb.XGBRegressor(verbosity=0,objective ='reg:squarederror', colsample_bytree = 1, learning_rate = 0.2,max_depth = 6, alpha = 10, n_estimators = 10)
         } 
         if (custom_regressor != None and self.implements_SciKitLearn_API(custom_regressor)): 
             self.MORegressor = MultiOutputRegressor(custom_regressor) 
@@ -177,7 +179,7 @@ class NeuronalNetRegressor:
     def load(self, load_path): 
         try: 
             self.model = torch.load(load_path)   
-            return self 
+            return self.model 
         except Exception: 
             print(traceback.format_exc())
 
@@ -297,8 +299,9 @@ class MLSSVR:
         elif kernel_selector.lower() == 'poly':
             K = (X @ Z.T + param1)**param2
 
-        #elif kernel_selector.lower() == 'rbf': 
-        #    K = rbf_kernel(X,Z,gamma=param1)
+        elif kernel_selector.lower() == 'rbf': 
+            
+            K = rbf_kernel(X,Z,gamma=param1)
         #
         #elif kernel_selector.lower() is 'erbf':
         elif kernel_selector.lower() == 'sigmoid': 
@@ -326,8 +329,8 @@ class MLSSVR:
             H[idx1: idx2, idx1: idx2] = H[idx1: idx2, idx1: idx2] + K*(m/lambd)
             P[idx1:idx2, t] = np.ones(l) 
         
-        eta = np.linalg.lstsq(H,P) 
-        nu = np.linalg.lstsq(H,y_train.flatten()) #CHECK 
+        eta = np.linalg.lstsq(H,P,rcond=None) 
+        nu = np.linalg.lstsq(H,y_train.flatten(),rcond=None) #CHECK 
         S = P.T @ eta[0]
         b =  np.linalg.inv(S) @ eta[0].T @ y_train.flatten()
         alpha = nu[0] - eta[0] @ b 
