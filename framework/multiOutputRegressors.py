@@ -22,7 +22,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split 
 import traceback  
 
-import sklearn.metrics.pairwise.rbf_kernel as rbf_kernel
+from sklearn.metrics.pairwise import rbf_kernel 
+import math
 
 # TODO: Add MOSVR as Whole new Method 
 # TODO: Add MO-RegTree   
@@ -32,17 +33,21 @@ class SingleTargetMethod:
     '''Default is GradientBoostingRegressor'''
     def __init__(self, selector='gradientboost', custom_regressor = None): 
         super().__init__()  
+        
         ESTIMATORS = { 
             'linear' : LinearRegression(), 
             'kneighbors' : KNeighborsRegressor(), 
             'adaboost' : AdaBoostRegressor(), 
             'gradientboost' : GradientBoostingRegressor(), 
-            'mlp' : MLPRegressor(solver='adam', alpha=1e-5, hidden_layer_sizes=(15,), random_state=1),
+            'mlp' : MLPRegressor(solver='adam', alpha=1e-5, hidden_layer_sizes=(15,), max_iter=1000, random_state=1),
             'svr' : SVR(gamma='auto'), 
             'xgb' : xgb.XGBRegressor(verbosity=0,objective ='reg:squarederror', colsample_bytree = 1, learning_rate = 0.2,max_depth = 6, alpha = 10, n_estimators = 10)
         } 
         if (custom_regressor != None and self.implements_SciKitLearn_API(custom_regressor)): 
-            self.MORegressor = MultiOutputRegressor(custom_regressor) 
+            try:
+                self.MORegressor = MultiOutputRegressor(custom_regressor) 
+            finally:
+                pass
             return
         elif( selector.lower() in ESTIMATORS):
             self.MORegressor = MultiOutputRegressor(ESTIMATORS[selector.lower()] ) 
@@ -68,7 +73,7 @@ class SingleTargetMethod:
 
 # Wrapper around sklearns DecisionTreeRegressor https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
 class MultiLayerPerceptron: 
-    def __init__(self,hidden_layer_sizes=(100, ), activation='relu', solver='adam', alpha=0.0001, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, power_t=0.5, max_iter=200, shuffle=True, random_state=None, tol=0.0001, verbose=False, warm_start=False, momentum=0.9, nesterovs_momentum=True, early_stopping=False, validation_fraction=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08): 
+    def __init__(self,hidden_layer_sizes=(100, ), activation='relu', solver='adam', alpha=0.0001, batch_size='auto', learning_rate='constant', learning_rate_init=0.001, power_t=0.5, max_iter=1000, shuffle=True, random_state=None, tol=0.0001, verbose=False, warm_start=False, momentum=0.9, nesterovs_momentum=True, early_stopping=False, validation_fraction=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08): 
         super().__init__() 
         self.mlp = MLPRegressor(hidden_layer_sizes, activation, solver, alpha, batch_size, learning_rate, learning_rate_init, power_t, max_iter, shuffle, random_state, tol, verbose, warm_start, momentum, nesterovs_momentum, early_stopping, validation_fraction, beta_1, beta_2, epsilon)
     
@@ -176,10 +181,10 @@ class NeuronalNetRegressor:
         except Exception: 
             print(traceback.format_exc())
     
-    def load(self, load_path): 
+    def load(load_path): 
         try: 
-            self.model = torch.load(load_path)   
-            return self.model 
+            model = torch.load(load_path)   
+            return model 
         except Exception: 
             print(traceback.format_exc())
 
@@ -275,7 +280,7 @@ class ConvNet(nn.Module):
         wp1 = self.get_size(wk1,k_p_1,0,s_p_1) 
         wk2 = self.get_size(wp1,k_c_2,0,s_c_2) 
         wp2 = self.get_size(wk2,k_p_2,0,s_p_2) 
-        return int(wp2)
+        return int( wp2)
 
     def get_size(self,w,k,p=0,s=0):
         return ((w-k+2*p)/s) +1
