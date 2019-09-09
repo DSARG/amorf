@@ -34,13 +34,6 @@ print(er.average__relative_root_mean_squared_error(y_test,mor.MultiOutputRegress
 print("###MLP")
 print(er.average__relative_root_mean_squared_error(y_test,mor.MultiLayerPerceptron().fit(X_train, y_train).predict(X_test))) 
 
-
-print("MO-CNN") 
-#model = mor.ConvNet(input_dim=len(X_train[0]),output_dim=len(y_train[0])) 
-#reg = mor.NeuronalNetRegressor(patience=3,model = model,learning_rate=0.001)
-#print(er.average__relative_root_mean_squared_error(y_test,reg.fit(X_train, y_train).predict(X_test)))
-#reg.save("CNN_WQ") 
-
 print('Linear NN') 
 model = mor.NeuronalNetRegressor.load(load_path = 'Linear_edm_p1lr1e-6.ckpt')
 reg = mor.NeuronalNetRegressor(model = model) 
