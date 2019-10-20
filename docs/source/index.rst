@@ -8,7 +8,9 @@ Welcome to framework's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents: 
+
+   modules.rst
 
 
 
