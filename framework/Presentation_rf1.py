@@ -10,7 +10,7 @@ X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2)
 
 print("\n###Single Target Methods") 
 print("St- XGBoost")
-print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod('xgb').fit(X_train, y_train).predict(X_test)))
+print(er.average__relative_root_mean_squared_error(y_test, mor.SingleTargetMethod('xgb').fit(X_train, y_train).predict(X_test)))
 print("St- Custom(Ridge Regression)")
 custom = RidgeCV() 
 print(er.average__relative_root_mean_squared_error(y_test,mor.SingleTargetMethod(custom_regressor = custom).fit(X_train, y_train).predict(X_test)))
@@ -34,7 +34,7 @@ print(er.average__relative_root_mean_squared_error(y_test,mor.MultiLayerPerceptr
 
 print('Linear NN') 
 model = mor.NeuronalNetRegressor.load(load_path = 'Linear_rf1_best.ckpt')
-reg = mor.NeuronalNetRegressor(model = model) 
+reg = mor.NeuronalNetRegressor(model=model)
 print(er.average__relative_root_mean_squared_error(y_test,reg.predict(X_test)))
 
 print("CNN") 

@@ -3,7 +3,8 @@ from sklearn.multioutput import MultiOutputRegressor
 from sklearn.ensemble import GradientBoostingRegressor 
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor 
+from sklearn.preprocessing import normalize
 import arff, numpy as np
 from numpy import mean
 
@@ -26,6 +27,7 @@ def average__relative_root_mean_squared_error(y_test,y_pred,dim):
         for j in range(0, len(y_test)): 
             sum_squared_error += ((y_test[j,i]-y_pred[j,i])**2)
         sum_squared_deviation = 0
+
         for k in range(0, len(y_test)):
             sum_squared_deviation += (y_test[k,i]- mean(y_test[:,i]))**2
         
@@ -41,7 +43,7 @@ X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.25)
 '''Water Quality'''
 dataset = arff.load(open('wq.arff'))
 data = np.array(dataset['data'])
-X = data[:,16:30] 
+X = normalize(data[:,16:30],norm='l1') 
 y= data[:,0:16]
 X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.25) 
 
