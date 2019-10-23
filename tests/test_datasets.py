@@ -57,5 +57,21 @@ class TestWQDataset(unittest.TestCase):
         self.assertTrue(y.dtype is numpy.dtype('float32'))
 
 
+class TestTransparentConductors(unittest.TestCase):
+
+    def test_getNumpy_dimensions(self):
+        X, y = datasets.TransparentConductors().get_numpy()
+        self.assertEqual(len(X), len(y))
+        self.assertEqual(len(X[0, :]), 12)
+        self.assertEqual(len(y[0, :]), 2)
+
+    def test_getNumpy_type(self):
+        X, y=datasets.TransparentConductors().get_numpy()
+        self.assertTrue(type(X) is numpy.ndarray)
+        self.assertTrue(X.dtype is numpy.dtype('float32'))
+        self.assertTrue(type(y) is numpy.ndarray)
+        self.assertTrue(y.dtype is numpy.dtype('float32'))
+
+
 if __name__ == '__main__':
     unittest.main()

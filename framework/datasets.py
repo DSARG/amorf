@@ -51,6 +51,7 @@ class RiverFlow1():
         """Retrieve X and Y as Numpy Array
 
         Returns tuple with two arrays, X and y
+        Replaces NaN values with 0
 
         Args:
 
@@ -107,3 +108,38 @@ class WaterQuality():
 
         """
         raise NotImplementedError
+
+
+class TransparentConductors():
+    def __init__(self):
+        data = np.loadtxt('data/transparentConductors.csv',
+                             delimiter=",", skiprows=1)
+        self.X = data[:, 0:12].astype(np.float32)
+        self.y = data[:, 12:14].astype(np.float32)
+        pass
+
+    def get_numpy(self):
+        """Retrieve X and Y as Numpy Array
+
+        Returns tuple with two arrays, X and y
+
+        Args:
+
+        Returns:
+            (np.ndarray, np.ndarray): Numpy Arraya X and y of type np.float32
+
+        """
+        return self.X, self.y
+
+    def get_pytorch_dataloader(self):
+        """Retrieve X and Y as PyTorch dataLoaders
+
+        Returns dataloaders with two arrays, X and y
+
+        Args:
+
+        Returns:
+            (np.ndarray, np.ndarray): Two PyTorch dataloaders X and y
+
+        """
+        return NotImplementedError
