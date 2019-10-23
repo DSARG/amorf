@@ -21,12 +21,3 @@ def average_relative_root_mean_squared_error(y_test, y_pred):
 
 def tensor_average_relative_root_mean_squared_error(y_pred, y_test):
     return t.sum(t.sqrt(t.sum((y_test - y_pred)**2, dim=0) / t.sum(((y_test - t.mean(y_pred, dim=0))**2), dim=0))) / len(y_pred[0, :])
-
-
-def xxtensor_average_relative_root_mean_squared_error(y_pred, y_test):
-    top = t.sum((y_test - y_pred)**2, dim=0)
-    bottom = t.sum(((y_test - t.mean(y_pred, dim=0))**2), dim=0)
-    a = top / bottom
-    b = t.sqrt(a)
-    out = t.sum(b) / len(y_pred[0, :])
-    return out
