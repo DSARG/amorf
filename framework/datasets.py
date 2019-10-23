@@ -116,7 +116,6 @@ class TransparentConductors():
                              delimiter=",", skiprows=1)
         self.X = data[:, 0:12].astype(np.float32)
         self.y = data[:, 12:14].astype(np.float32)
-        pass
 
     def get_numpy(self):
         """Retrieve X and Y as Numpy Array
