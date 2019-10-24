@@ -5,14 +5,15 @@ class EarlyStopping:
 
     Returns True if training should stop and False if it should continue
 
-    Args: 
-        patience (int) : Stop after p continous incrementations 
+    Args:
+        patience (int) : Stop after p continous incrementations
 
-    Attributes: 
+    Attributes:
         lastError (float) : Error-value of previous call of the 'stop'-function
         patience (int) : Stop after how many continous incrementations
         suceedingsHigherValues (int) :Number of continous incrementations of error
     """
+
     def __init__(self, patience):
         self.lastError = 0
         self.patience = patience

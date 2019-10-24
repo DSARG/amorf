@@ -66,7 +66,7 @@ class TestTransparentConductors(unittest.TestCase):
         self.assertEqual(len(y[0, :]), 2)
 
     def test_getNumpy_type(self):
-        X, y =datasets.TransparentConductors().get_numpy()
+        X, y = datasets.TransparentConductors().get_numpy()
         self.assertTrue(type(X) is numpy.ndarray)
         self.assertTrue(X.dtype is numpy.dtype('float32'))
         self.assertTrue(type(y) is numpy.ndarray)
