@@ -1,4 +1,4 @@
 .vs*
 docs/build/* 
-framework/_pychache__/*
+framework/__pychache__/*
 *.pyc 
