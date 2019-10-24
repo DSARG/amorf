@@ -8,8 +8,6 @@ Subpackages
 
     framework.MultiOutputRegression
     framework.examples
-    framework.metrics
-    framework.utils
 
 Submodules
 ----------
@@ -18,6 +16,22 @@ framework.datasets module
 -------------------------
 
 .. automodule:: framework.datasets
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+framework.metrics module
+------------------------
+
+.. automodule:: framework.metrics
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+framework.utils module
+----------------------
+
+.. automodule:: framework.utils
     :members:
     :undoc-members:
     :show-inheritance:
