@@ -1,3 +1,4 @@
 .vs*
 docs/build/* 
-*.pyc
+framework/_pychache__/*
+*.pyc 
