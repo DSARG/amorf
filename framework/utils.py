@@ -1,9 +1,9 @@
 
-class EarlyStopping():
+class EarlyStopping:
     """
     Early Stopping Mechanism
 
-    Early stopping ends training when training or validation error continously rise over a given interval of steps (patience) 
+    Returns True if training should stop and False if it should continue
 
     Args: 
         patience (int) : Stop after p continous incrementations 
@@ -13,12 +13,10 @@ class EarlyStopping():
         patience (int) : Stop after how many continous incrementations
         suceedingsHigherValues (int) :Number of continous incrementations of error
     """
-
     def __init__(self, patience):
         self.lastError = 0
         self.patience = patience
         self.succeedingHigherValues = 0
-    # returns True if training should stop and False if it should continue
 
     def stop(self, newError):
         """
