@@ -1,2 +1,5 @@
 .vs*
-docs/build/*
+docs/build/* 
+framework/__pychache__/*
+tests/__pychache__/*
+*.pyc 
