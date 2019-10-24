@@ -15,7 +15,7 @@ def average_relative_error(y_test, y_pred):
     return sum(sum(abs(y_test - y_pred) / y_test) / len(y_test)) / len(y_test[0, :])
 
 
-def average_relative_root_mean_squared_error(y_test, y_pred):
+def average_relative_root_mean_squared_error(y_pred, y_test):
     """Calculate Average Relative Root Mean Squared Error 
 
     Args:
@@ -25,11 +25,14 @@ def average_relative_root_mean_squared_error(y_test, y_pred):
     Returns:
         float : Average Relative Root Mean Squared Error 
     """
+    top = sum((y_test - y_pred)**2)
+    m = mean(y_test, axis=0)
+    bottom = sum((y_test - mean(y_test, axis=0))**2)
     return sum(sqrt(sum((y_test - y_pred)**2) / sum((y_test - mean(y_test, axis=0))**2))) / len(y_pred[0, :])
 
 
 def tensor_average_relative_root_mean_squared_error(y_pred, y_test):
-    """Calculate Average Relative Root Mean Squared Error 
+    """Calculate Average Relative Root Mean Squared Error
 
     Args:
         y_test (torch.FloatTensor): array of dimension N x d with actual values
@@ -38,4 +41,8 @@ def tensor_average_relative_root_mean_squared_error(y_pred, y_test):
     Returns:
         float : Average Relative Root Mean Squared Error 
     """
-    return t.sum(t.sqrt(t.sum((y_test - y_pred)**2, dim=0) / t.sum(((y_test - t.mean(y_pred, dim=0))**2), dim=0))) / len(y_pred[0, :]).item()
+    top = t.sum((y_test - y_pred)**2, dim=0)
+    m = t.mean(y_test, dim=0)
+    bottom = t.sum((y_test - t.mean(y_test, dim=0))**2, dim=0)
+
+    return (t.sum(t.sqrt(t.sum((y_test - y_pred)**2, dim=0) / t.sum(((y_test - t.mean(y_test, dim=0))**2), dim=0))) / len(y_pred[0, :])).item()

@@ -16,7 +16,7 @@ class TestError(unittest.TestCase):
         labels = np.array([[2, -6], [3, 5], [4, 4], [5, 3], [-6, 2]]).astype(np.float)
         predicted_labels = np.array([[3, 7], [2, -5], [4, 4], [-5, 2], [7, 3]]).astype(np.float)
         self.assertAlmostEqual(metrics.average_relative_root_mean_squared_error(
-            labels, predicted_labels), 1.873596193, places=5)
+            labels, predicted_labels), 1.8544774055480957, places=5)
 
     def test_tensor_average_relative_root_mean_squared_error(self):
         labels = torch.from_numpy(
@@ -24,7 +24,7 @@ class TestError(unittest.TestCase):
         predicted_labels = torch.from_numpy(
             np.array([[3, 7], [2, -5], [4, 4], [-5, 2], [7, 3]])).float()
         self.assertAlmostEqual(metrics.tensor_average_relative_root_mean_squared_error(
-            labels, predicted_labels), 1.873596193, places=5)
+            labels, predicted_labels), 1.8544774055480957, places=5)
 
 
 if __name__ == '__main__':
