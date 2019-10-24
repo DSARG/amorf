@@ -1,2 +1,3 @@
 .vs*
-docs/build/*
+docs/build/* 
+*.pyc
