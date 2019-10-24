@@ -1,5 +1,5 @@
 import unittest
-from framework.utils import EarlyStopping
+import framework.utils
 
 
 class TestEarlyStopping(unittest.TestCase):

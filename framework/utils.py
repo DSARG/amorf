@@ -1,3 +1,4 @@
+
 class EarlyStopping():
     """
     Early Stopping Mechanism
@@ -5,7 +6,7 @@ class EarlyStopping():
     Early stopping ends training when training or validation error continously rise over a given interval of steps (patience) 
 
     Args: 
-        patience (int) : Stop after how many continous incrementations 
+        patience (int) : Stop after p continous incrementations 
 
     Attributes: 
         lastError (float) : Error-value of previous call of the 'stop'-function
