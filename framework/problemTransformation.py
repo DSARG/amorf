@@ -14,7 +14,7 @@ class SingleTargetMethod:
         class. It has some estimators readily provided and allows for
         custom estimators to be used.
 
-    Args: 
+    Args:
         selector (string): Can be one of the following linear', 'kneighbors',
                             'adaboost', 'gradientboost', 'mlp', 'svr', 'xgb'
         custom_regressor (object): Custom Estimator that must implement 'fit()'
@@ -65,8 +65,8 @@ class SingleTargetMethod:
         """Fits the estimator to the training data
 
         Args:
-            X_train (np.array): Training set descriptive variables
-            y_train (np.array): Training set target variables
+            X_train (np.ndarray): Training set descriptive variables
+            y_train (np.ndarray): Training set target variables
 
         Returns:
             [sklearn.MultiOutputRegressor]: Trained estimator
@@ -78,10 +78,10 @@ class SingleTargetMethod:
         """Predicts the target variables for a given set of descriptive variables
 
         Args:
-            X_test (np.array): Set of descriptive variables
+            X_test (np.ndarray): Array with descriptive variables
 
         Returns:
-            [np.array]: Set of predicted target variables
+            np.ndarray: Array with predicted target variables
         """
         result = self.MORegressor.predict(X_test)
         return result

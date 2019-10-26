@@ -28,6 +28,14 @@ framework.metrics module
     :undoc-members:
     :show-inheritance:
 
+framework.problemTransformation module
+--------------------------------------
+
+.. automodule:: framework.problemTransformation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 framework.utils module
 ----------------------
 
