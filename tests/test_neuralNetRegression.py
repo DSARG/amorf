@@ -71,7 +71,7 @@ class TestLinearNeuralNet(unittest.TestCase):
         self.assertEqual(batch_x[0].shape[0], 138)
         self.assertEqual(batch_x[0].shape[1], 16)
         self.assertEqual(batch_y[0].shape[0], 138)
-        self.assertEqual(batch_y[0].shape[1], 2)
+        self.assertEqual(batch_y[0].shape[1], 2) 
     # def test_save_load(self):
 
 
@@ -113,3 +113,10 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
         self.assertTrue(type(result) is numpy.ndarray)
         self.assertTrue(result.dtype is numpy.dtype('float32') or
                         result.dtype is numpy.dtype('float64'))
+
+class TestFullScenarios(unittest.TestCase): 
+    pass
+    # def Scenario With GPU and With Batch Mechanism - Linear
+
+    # def Scenaro With GPU and With Batch Mechanis - Convolutional
+    
