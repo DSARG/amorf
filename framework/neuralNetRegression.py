@@ -45,7 +45,7 @@ class NeuralNetRegressor:
         stop = False
         epochs = 0
 
-        X_train_t_batched, y_train_t_batched = self.split_train_to_batches(
+        X_train_t_batched, y_train_t_batched = self.__split_training_set_to_batches(
             X_train_t, y_train_t, self.batch_size)
 
         while(stop is False):
@@ -82,15 +82,14 @@ class NeuralNetRegressor:
 
         return self
 
-    def split_train_to_batches(self, X_train_t, y_train_t, batch_size):
+    def __split_training_set_to_batches(self, X_train_t, y_train_t, batch_size):
         if batch_size is None:
             return torch.split(X_train_t, len(X_train_t)), torch.split(y_train_t, len(X_train_t))
         else:
             return torch.split(X_train_t, batch_size), torch.split(y_train_t, batch_size)
 
     def predict(self, X_test):
-        n_samples = len(X_test)
-        n_features = len(X_test[0])
+
         X_test_t = self.model.convert_test_set_to_tensor(X_test, self.Device)
 
         self.model.eval()
