@@ -9,6 +9,8 @@ class EDM():
             data = np.array(dataset['data'])
             self.X = X = data[:, 0:16].astype(np.float32)
             self.y = y = data[:, 16:18].astype(np.float32)
+            self.X.astype(np.float32)
+            self.y.astype(np.float32)
 
     def get_numpy(self):
         """Retrieve X and Y as Numpy Array
@@ -42,10 +44,12 @@ class RiverFlow1():
         with open('data/rf1.arff') as file:
             dataset = arff.load(file)
             data = np.array(dataset['data'])
-            self.X = data[:, 0:64].astype(np.float32)
-            self.y = data[:, 64:72].astype(np.float32)
-            self.X[self.X is None] = 0
-            self.y[self.y is None] = 0
+            X = data[:, 0:64]
+            y = data[:, 64:72]
+            X[X == None] = 0
+            y[y == None] = 0
+            self.X = X.astype(np.float32)
+            self.y = y.astype(np.float32)
 
     def get_numpy(self):
         """Retrieve X and Y as Numpy Array
