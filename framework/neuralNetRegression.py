@@ -12,39 +12,35 @@ import traceback
 
 
 class NeuralNetRegressor:
-    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    def __init__(self, model, patience=5, learning_rate=0.01, print_after_epochs=10, batch_size=None):
+    def __init__(self, model, patience=5, learning_rate=0.01, print_after_epochs=10, batch_size=None, use_gpu=False):
         if not isinstance(model, nn.Module):
             raise ValueError(
                 '\'{}\' is not a valid instance of pytorch.nn'.format(model))
+        self.Device = 'cpu'
+        if use_gpu is True and torch.cuda.is_available():
+            torch.set_default_tensor_type('torch.cuda.FloatTensor')
+            self.Device = "cuda:0"
 
-        self.model = model
-        self.loss_fn = nn.MSELoss() #er.tensor_average_relative_root_mean_squared_error  
+        self.model = model.to(self.Device)
+        self.loss_fn = nn.MSELoss()  # er.tensor_average_relative_root_mean_squared_error
         self.patience = patience
         self.learning_rate = learning_rate
         self.print_after_epochs = print_after_epochs
         self.batch_size = batch_size
 
     def fit(self, X_train, y_train):
-        n_samples, n_features, n_targets = len(
-            X_train), len(X_train[0]), len(y_train[0])
-
         # Create Validation Set from train Set
         X_train, X_validate, y_train, y_validate = train_test_split(
             X_train, y_train, test_size=0.1)
         X_train_t, y_train_t = self.model.convert_train_set_to_tensor(
-            X_train, y_train)
+            X_train, y_train, self.Device)
         X_validate_t, y_validate_t = self.model.convert_train_set_to_tensor(
-            X_validate, y_validate)
+            X_validate, y_validate, self.Device)
 
-        # Calculate on GPU if possible
-        X_train_t, y_train_t = X_train_t.to(
-            self.DEVICE), y_train_t.to(self.DEVICE)
-
-        self.optimizer = optim.Adam(
-            self.model.parameters(), self.learning_rate)
+        self.optimizer = optim.Adam(self.model.parameters(), self.learning_rate)
         self.model.train()
+        
         stopper = early(self.patience)
         stop = False
         epochs = 0
@@ -95,13 +91,13 @@ class NeuralNetRegressor:
     def predict(self, X_test):
         n_samples = len(X_test)
         n_features = len(X_test[0])
-        X_test_t = self.model.convert_test_set_to_tensor(X_test)
+        X_test_t = self.model.convert_test_set_to_tensor(X_test, self.Device)
 
         self.model.eval()
         with torch.no_grad():
             y_pred_t = self.model(X_test_t)
 
-        return y_pred_t.detach().numpy()
+        return y_pred_t.detach().numpy() if self.Device is 'cpu' else y_pred_t.cpu().detach().numpy()
 
     def save(self, store_path):
         try:
@@ -120,16 +116,16 @@ class NeuralNetRegressor:
 class AbstractNeuralNet(ABC):
 
     @abstractmethod
-    def convert_train_set_to_tensor(self, X_train, y_train):
+    def convert_train_set_to_tensor(self, X_train, y_train,device):
         pass
 
     @abstractmethod
-    def convert_test_set_to_tensor(self, X_test):
+    def convert_test_set_to_tensor(self, X_test,device):
         pass
 
 
 @AbstractNeuralNet.register
-class NeuralNet(nn.Module):
+class Linear_NN_Model(nn.Module):
     def __init__(self, input_dim, output_dim, selector='max', p_dropout_1=0.5, p_dropout_2=0.5):
         MIDDLE_LAYER_NEURON_CALCULATION = {
             'mean': mean([input_dim, output_dim]),
@@ -162,18 +158,19 @@ class NeuralNet(nn.Module):
 
         return out
 
-    def convert_train_set_to_tensor(self, X_train, y_train):
-        X_train_t = torch.from_numpy(X_train).float()
-        y_train_t = torch.from_numpy(y_train).float()
+    def convert_train_set_to_tensor(self, X_train, y_train, device):
+        X_train_t = torch.from_numpy(X_train).to(device).float()
+        y_train_t = torch.from_numpy(y_train).to(device).float()
+
         return X_train_t, y_train_t
 
-    def convert_test_set_to_tensor(self, X_test):
-        X_test_t = torch.from_numpy(X_test).float()
+    def convert_test_set_to_tensor(self, X_test, device):
+        X_test_t = torch.from_numpy(X_test).to(device).float()
         return X_test_t
 
 
 @AbstractNeuralNet.register
-class ConvNet(nn.Module):
+class Convolutional_NN_Model(nn.Module):
     def __init__(self, input_dim, output_dim, p_dropout=0.5):
         super().__init__()
         self.p_dropout = p_dropout
@@ -181,11 +178,11 @@ class ConvNet(nn.Module):
         self.layer1 = nn.Sequential(
             nn.Conv1d(1, 24, kernel_size=2, stride=2, padding=0),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=2))
+            nn.MaxPool1d(kernel_size=2, stride=2))
         self.layer2 = nn.Sequential(
             nn.Conv1d(24, 64, kernel_size=2, stride=2, padding=0),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=2))
+            nn.MaxPool1d(kernel_size=2, stride=2))
         self.drop_out = nn.Dropout(self.p_dropout)
         self.fc1 = nn.Linear(64 * width_out, 100)
         self.fc2 = nn.Linear(100, output_dim)
@@ -199,22 +196,22 @@ class ConvNet(nn.Module):
         out = self.fc2(out)
         return out
 
-    def convert_train_set_to_tensor(self, X_train, y_train):
-        X_train_t = torch.from_numpy(X_train).float().reshape(
+    def convert_train_set_to_tensor(self, X_train, y_train,device):
+        X_train_t = torch.from_numpy(X_train).to(device).float().reshape(
             len(X_train), 1, len(X_train[0]))
-        y_train_t = torch.from_numpy(y_train).float()
+        y_train_t = torch.from_numpy(y_train).to(device).float()
         return X_train_t, y_train_t
 
-    def convert_test_set_to_tensor(self, X_test):
-        X_test_t = torch.from_numpy(X_test).float().reshape(
+    def convert_test_set_to_tensor(self, X_test,device):
+        X_test_t = torch.from_numpy(X_test).to(device).float().reshape(
             len(X_test), 1, len(X_test[0]))
         return X_test_t
 
     def __get_output_size(self, input_dim):
         k_c_1 = 2
-        k_p_1 = 3
+        k_p_1 = 2
         k_c_2 = 2
-        k_p_2 = 3
+        k_p_2 = 2
         s_c_1 = 2
         s_c_2 = 2
         s_p_1 = 2
