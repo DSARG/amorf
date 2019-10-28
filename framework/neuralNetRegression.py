@@ -23,7 +23,7 @@ class NeuralNetRegressor:
             self.Device = "cuda:0"
 
         self.model = model.to(self.Device)
-        self.loss_fn = nn.MSELoss()  # er.tensor_average_relative_root_mean_squared_error
+        self.loss_fn = er.tensor_average_relative_root_mean_squared_error #nn.MSELoss()
         self.patience = patience
         self.learning_rate = learning_rate
         self.print_after_epochs = print_after_epochs
