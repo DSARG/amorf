@@ -8,7 +8,6 @@ from sklearn.neural_network import MLPRegressor
 
 # AutoEncoderRegression
 import torch
-import torchvision
 from torch import nn
 import numpy as np
 import copy
@@ -102,12 +101,12 @@ class AutoEncoderRegression:
     # TODO: Add Data Loaders
     # TODO: Add Validation set for model selection
     # FIXME: Naming Inconsistencies (y_train, y_data) -> find scheme to apply everywhere
-    PATH = "autoncoder_bestmodel_validation"
 
-    def __init__(self, regressor='gradientboost', custom_regressor=None, learning_rate=1e-3, print_after_epochs=500, use_gpu=False):
+    def __init__(self, regressor='gradientboost', custom_regressor=None, num_epochs=500, learning_rate=1e-3, print_after_epochs=500, use_gpu=False):
         self.learning_rate = learning_rate
+        self.path = "autoncoder_bestmodel_validation"
         self.print_after_epochs = print_after_epochs
-        self.num_epochs = 5000
+        self.num_epochs = num_epochs
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -148,14 +147,15 @@ class AutoEncoderRegression:
     def fit(self, X_train, y_train):
         # X_train, y_train = __scaleTrainigSet(X_train, y_train)
         n_targets = len(y_train[0])
-        y_train, y_val = train_test_split(y_train, test_size=0.1)
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train, y_train, test_size=0.1)
         y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device)
         y_data_val = torch.tensor(y_val, dtype=torch.float).to(self.Device)
 
         model = autoencoder(n_targets).to(self.Device)
         best_model, best_score = None, np.inf
         criterion = nn.MSELoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
         val_losses = []
 
         for epoch in range(self.num_epochs):
@@ -174,15 +174,14 @@ class AutoEncoderRegression:
             val_losses.append(v_loss.cpu().detach().numpy())
             if v_loss < best_score:
                 best_score = v_loss
-                torch.save(model.state_dict(), PATH)
+                torch.save(model.state_dict(), self.path)
 
             # ===================log========================
-            if epoch % print_after_epochs == 0:
-                print('epoch [{}/{}], train_loss:{} '.format(
-                    epoch + 1, self.num_epochs, loss))
+            if epoch % self.print_after_epochs == 0:
+                print('epoch [{}/{}], train_loss:{} \n \t\t validation_loss:{}'.format(epoch + 1, self.num_epochs, loss,v_loss))
 
         self.best_model = autoencoder(n_targets)
-        self.best_model.load_state_dict(torch.load(PATH))
+        self.best_model.load_state_dict(torch.load(self.path))
         self.best_model.to(self.Device)
         y_enc_train = self.best_model.encoder(y_data)
 
