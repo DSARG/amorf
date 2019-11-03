@@ -63,14 +63,6 @@ class SingleTargetMethod:
             raise ValueError(
                 '\'{}\' is not a valid selector for SingleTargetMethod'.format(selector))
 
-    def __implements_SciKitLearn_API(self, object):
-        # TODO: Move to framework.utils or make package private
-        fit = getattr(object, 'fit', None)
-        predict = getattr(object, 'predict', None)
-        if(fit is not None and predict is not None):
-            return True
-        return False
-
     def fit(self, X_train, y_train):
         """Fits the estimator to the training data
 
@@ -136,14 +128,6 @@ class AutoEncoderRegression:
         else:
             raise ValueError(
                 '\'{}\' is not a valid selector for SingleTargetMethod'.format(regressor))
-
-    def __implements_SciKitLearn_API(self, object):
-        # TODO: Move to framework.utils or macke module private with _
-        fit = getattr(object, 'fit', None)
-        predict = getattr(object, 'predict', None)
-        if(fit is not None and predict is not None):
-            return True
-        return False
 
     def fit(self, X_train, y_train):
         # X_train, y_train = __scaleTrainigSet(X_train, y_train)
@@ -270,7 +254,6 @@ class autoencoder(nn.Module):
 
 
 def _implements_SciKitLearn_API(object):
-        # TODO: Move to framework.utils or macke module private with _
     fit = getattr(object, 'fit', None)
     predict = getattr(object, 'predict', None)
     if(fit is not None and predict is not None):
