@@ -1,5 +1,5 @@
 import unittest
-from framework.problemTransformation import AutoEncoderRegression, SingleTargetMethod
+from framework.problemTransformation import AutoEncoderRegression, SingleTargetMethod, _implements_SciKitLearn_API
 import framework.datasets as ds
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
@@ -23,7 +23,11 @@ class TestSingleTargetMethod(unittest.TestCase):
         self.assertRaises(ValueError, SingleTargetMethod,
                           'nonexistent_selector')
         self.assertEqual(SingleTargetMethod(
-            custom_regressor=RidgeCV()).MORegressor._estimator_type, 'regressor')
+            custom_regressor=RidgeCV()).MORegressor._estimator_type, 'regressor') 
+    
+    # TODO: Add Test
+    # def test_false_assignment(self): 
+    #     pass
 
     def test_fit(self):
         for selector in self.selectors:
@@ -44,11 +48,18 @@ class TestSingleTargetMethod(unittest.TestCase):
     def test_custom_regressor(self):
         valid_estimator = RidgeCV()
         invalid_estimator = object()
-        stm = SingleTargetMethod()
-        self.assertFalse(stm._SingleTargetMethod__implements_SciKitLearn_API(
-            object=invalid_estimator))
-        self.assertTrue(stm._SingleTargetMethod__implements_SciKitLearn_API(
-            object=valid_estimator))
+        stm = SingleTargetMethod(custom_regressor=valid_estimator)
+        self.assertFalse(_implements_SciKitLearn_API(
+            invalid_estimator))
+        self.assertTrue(_implements_SciKitLearn_API(
+            valid_estimator))
+        result = stm.fit(
+            self.X_train, self.y_train).predict(self.X_test)
+        self.assertEqual(
+            result.shape, (len(self.X_test), len(self.y_test[0, :])))
+        self.assertTrue(type(result) is numpy.ndarray)
+        self.assertTrue(result.dtype is numpy.dtype(
+            'float32') or result.dtype is numpy.dtype('float64'))
 
 
 class TestAutoEncoderRegression(unittest.TestCase):
@@ -68,17 +79,21 @@ class TestAutoEncoderRegression(unittest.TestCase):
         self.assertRaises(ValueError, SingleTargetMethod,
                           'nonexistent_selector')
         self.assertEqual(AutoEncoderRegression(
-            custom_regressor=RidgeCV()).regressor._estimator_type, 'regressor')
+            custom_regressor=RidgeCV()).regressor._estimator_type, 'regressor') 
+    
+    # TODO: Add Test
+    # def test_false_assignment(self): 
+    #     pass
 
     def test_fit(self):
         for selector in self.selectors:
             regressor = AutoEncoderRegression(selector)
             self.assertEqual(regressor.fit(
-                self.X_train, self.y_train)._estimator_type, 'regressor')
+                self.X_train, self.y_train).regressor._estimator_type, 'regressor')
 
     def test_predict(self):
         for selector in self.selectors:
-            result = AutoEncoderRegression(regressor=selector, num_epochs=2).fit(
+            result = AutoEncoderRegression(regressor=selector, patience=1, batch_size=10).fit(
                 self.X_train, self.y_train).predict(self.X_test)
             self.assertEqual(
                 result.shape, (len(self.X_test), len(self.y_test[0, :])))
@@ -89,8 +104,15 @@ class TestAutoEncoderRegression(unittest.TestCase):
     def test_custom_regressor(self):
         valid_estimator = RidgeCV()
         invalid_estimator = object()
-        reg = AutoEncoderRegression()
-        self.assertFalse(reg._AutoEncoderRegression__implements_SciKitLearn_API(
-            object=invalid_estimator))
-        self.assertTrue(reg._AutoEncoderRegression__implements_SciKitLearn_API(
-            object=valid_estimator))
+        reg = AutoEncoderRegression(custom_regressor=valid_estimator)
+        self.assertFalse(_implements_SciKitLearn_API(
+            invalid_estimator))
+        self.assertTrue(_implements_SciKitLearn_API(
+            valid_estimator))
+        result = reg.fit(
+            self.X_train, self.y_train).predict(self.X_test)
+        self.assertEqual(
+            result.shape, (len(self.X_test), len(self.y_test[0, :])))
+        self.assertTrue(type(result) is numpy.ndarray)
+        self.assertTrue(result.dtype is numpy.dtype(
+            'float32') or result.dtype is numpy.dtype('float64'))
