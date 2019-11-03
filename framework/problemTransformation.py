@@ -47,13 +47,13 @@ class SingleTargetMethod:
             'svr': SVR(gamma='auto'),
             'xgb': xgb.XGBRegressor(verbosity=0, objective='reg:squarederror', colsample_bytree=1, learning_rate=0.2, max_depth=6, alpha=10, n_estimators=10)
         }
-        if (custom_regressor is not None and _implements_SciKitLearn_API(custom_regressor)):
+        if custom_regressor is not None and _implements_SciKitLearn_API(custom_regressor):
             try:
                 self.MORegressor = MultiOutputRegressor(custom_regressor)
             finally:
                 pass
             return
-        elif(selector.lower() in ESTIMATORS):
+        elif isinstance(selector, str) and selector.lower() in ESTIMATORS:
             self.MORegressor = MultiOutputRegressor(
                 ESTIMATORS[selector.lower()])
             if custom_regressor is not None:
@@ -113,14 +113,13 @@ class AutoEncoderRegression:
             'svr': SVR(gamma='auto'),
             'xgb': xgb.XGBRegressor(verbosity=0, objective='reg:squarederror', colsample_bytree=1, learning_rate=0.2, max_depth=6, alpha=10, n_estimators=10)
         }
-        # FIXME: Unhandled error if Regressor-Object is passed as selector
-        if (custom_regressor is not None and _implements_SciKitLearn_API(custom_regressor)):
+        if custom_regressor is not None and _implements_SciKitLearn_API(custom_regressor):
             try:
                 self.regressor = custom_regressor
             finally:
                 pass
             return
-        elif(regressor.lower() in ESTIMATORS):
+        elif isinstance(regressor, str) and regressor.lower() in ESTIMATORS:
             self.regressor = ESTIMATORS[regressor.lower()]
             if custom_regressor is not None:
                 raise Warning('\'{}\' is not valid regressor using \'{}\' instead'.format(

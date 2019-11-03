@@ -26,8 +26,18 @@ class TestSingleTargetMethod(unittest.TestCase):
             custom_regressor=RidgeCV()).MORegressor._estimator_type, 'regressor') 
     
     # TODO: Add Test
-    # def test_false_assignment(self): 
-    #     pass
+    def test_false_assignment(self):
+        valid_estimator = RidgeCV()
+        invalid_estimator = object() 
+
+        with self.assertRaises(Warning): 
+            SingleTargetMethod(custom_regressor=invalid_estimator) 
+        with self.assertRaises(ValueError): 
+            SingleTargetMethod("selector", custom_regressor=invalid_estimator)
+        with self.assertRaises(ValueError): 
+            SingleTargetMethod(valid_estimator) 
+        with self.assertRaises(ValueError): 
+            SingleTargetMethod(invalid_estimator)
 
     def test_fit(self):
         for selector in self.selectors:
@@ -82,8 +92,18 @@ class TestAutoEncoderRegression(unittest.TestCase):
             custom_regressor=RidgeCV()).regressor._estimator_type, 'regressor') 
     
     # TODO: Add Test
-    # def test_false_assignment(self): 
-    #     pass
+    def test_false_assignment(self):
+        valid_estimator = RidgeCV()
+        invalid_estimator = object() 
+
+        with self.assertRaises(Warning): 
+            AutoEncoderRegression(custom_regressor=invalid_estimator) 
+        with self.assertRaises(ValueError): 
+            AutoEncoderRegression("selector", custom_regressor=invalid_estimator)
+        with self.assertRaises(ValueError): 
+            AutoEncoderRegression(valid_estimator) 
+        with self.assertRaises(ValueError): 
+            AutoEncoderRegression(invalid_estimator)
 
     def test_fit(self):
         for selector in self.selectors:
