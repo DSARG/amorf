@@ -25,7 +25,6 @@ class TestSingleTargetMethod(unittest.TestCase):
         self.assertEqual(SingleTargetMethod(
             custom_regressor=RidgeCV()).MORegressor._estimator_type, 'regressor') 
     
-    # TODO: Add Test
     def test_false_assignment(self):
         valid_estimator = RidgeCV()
         invalid_estimator = object() 
@@ -91,7 +90,6 @@ class TestAutoEncoderRegression(unittest.TestCase):
         self.assertEqual(AutoEncoderRegression(
             custom_regressor=RidgeCV()).regressor._estimator_type, 'regressor') 
     
-    # TODO: Add Test
     def test_false_assignment(self):
         valid_estimator = RidgeCV()
         invalid_estimator = object() 
