@@ -90,6 +90,16 @@ class SingleTargetMethod:
 
 
 class AutoEncoderRegression:
+    #TODO: Add Docstring
+    """[summary]
+    
+    Raises:
+        Warning: [description]
+        ValueError: [description]
+    
+    Returns:
+        [type]: [description]
+    """
     # TODO: Add Data Loaders
     # FIXME: Naming Inconsistencies (y_train, y_data) -> find scheme to apply everywhere
 
@@ -129,7 +139,16 @@ class AutoEncoderRegression:
                 '\'{}\' is not a valid selector for SingleTargetMethod'.format(regressor))
 
     def fit(self, X_train, y_train):
-        # X_train, y_train = __scaleTrainigSet(X_train, y_train)
+        #TODO: Add Docstring
+        """[summary]
+        
+        Args:
+            X_train ([type]): [description]
+            y_train ([type]): [description]
+        
+        Returns:
+            [type]: [description]
+        """
         n_targets = len(y_train[0])
         X_train, X_val, y_train, y_val = train_test_split(
             X_train, y_train, test_size=0.1)
@@ -187,6 +206,15 @@ class AutoEncoderRegression:
         return self
 
     def predict(self, X_test):
+        #TODO: Add Docstring
+        """[summary]
+        
+        Args:
+            X_test ([type]): [description]
+        
+        Returns:
+            [type]: [description]
+        """
         y_pred_test = self.regressor.predict(X_test)
         y_pred_test_t = torch.tensor(
             y_pred_test, dtype=torch.float).unsqueeze(1).to(self.Device)
@@ -199,15 +227,6 @@ class AutoEncoderRegression:
             return torch.split(y_train_t, len(y_train_t))
         else:
             return torch.split(y_train_t, batch_size)
-    # def __scaleTrainigSet(self,X_train, y_train):
-    #     scaler_x_train = StandardScaler()
-    #     scaler_x_train.fit(X_train)
-    #     X_train = scaler_x_train.transform(X_train)
-
-    #     scaler_y_train = StandardScaler()
-    #     scaler_y_train.fit(y_train)
-    #     y_train = scaler_y_train.transform(y_train)
-    #     return X_train,y_train
 
 
 class autoencoder(nn.Module):

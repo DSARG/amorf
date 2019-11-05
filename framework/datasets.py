@@ -1,7 +1,7 @@
 import arff
 import numpy as np
 
-# TODO: Add sizes of Dataet to documentation
+# TODO: Add sizes of Dataset to documentation
 
 class EDM():
     def __init__(self):
