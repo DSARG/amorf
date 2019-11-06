@@ -15,7 +15,7 @@ class TestLinearNeuralNet(unittest.TestCase):
         self.input_dim = len(self.X_train[0, :])
         self.target_dim = len(self.y_train[0, :])
 
-    # def test_initialization(self)
+    # TODO: def test_initialization(self)
 
     def test_predict_without_GPU(self):
 
@@ -72,7 +72,7 @@ class TestLinearNeuralNet(unittest.TestCase):
         self.assertEqual(batch_x[0].shape[1], 16)
         self.assertEqual(batch_y[0].shape[0], 138)
         self.assertEqual(batch_y[0].shape[1], 2) 
-    # def test_save_load(self):
+    # TODO: def test_save_load(self):
 
 
 class TestConvolutionalNeuralNet(unittest.TestCase):
@@ -116,7 +116,7 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
 
 class TestFullScenarios(unittest.TestCase): 
     pass
-    # def Scenario With GPU and With Batch Mechanism - Linear
+    # TODO: def Scenario With GPU and With Batch Mechanism - Linear
 
-    # def Scenaro With GPU and With Batch Mechanis - Convolutional
+    # TODO: def Scenaro With GPU and With Batch Mechanis - Convolutional
     

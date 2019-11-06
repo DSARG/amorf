@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import DataLoader
-import arff
+
 from numpy import mean, sum
 import numpy as np
 import pyro
@@ -11,7 +10,8 @@ from pyro.distributions import Normal, Categorical, Uniform, Delta
 from pyro.infer import SVI, Trace_ELBO, TracePredictive, EmpiricalMarginal
 from pyro.optim import Adam
 from pyro.infer.autoguide import AutoDiagonalNormal
-from framework.utils import EarlyStopping as early
+from framework.utils import EarlyStopping as early 
+# TODO: clear Imports 
 
 
 class BayesianNeuralNetworkRegression:
@@ -26,6 +26,16 @@ class BayesianNeuralNetworkRegression:
             self.Device = "cuda:0"
 
     def fit(self, X_train, y_train):
+        """
+        fit [summary]
+        
+        Args:
+            X_train ([type]): [description]
+            y_train ([type]): [description]
+        
+        Returns:
+            [type]: [description]
+        """
         x_data = torch.tensor(X_train, dtype=torch.float).to(self.Device)
         y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device)
 
@@ -49,16 +59,27 @@ class BayesianNeuralNetworkRegression:
             for batch_X, batch_y in zip(X_train_t_batched, y_train_t_batched):
                 loss = self.svi.step(batch_X, batch_y)
                 losses.append(loss)
+                stop = stopper.stop(loss)
 
-            epochs += 1
             if epochs % self.print_after_epochs == 0:
                 print("[iteration %04d] loss: %.4f" %
-                      (self.print_after_epochs + 1, loss / len(x_data)))
-            stop = stopper.stop(loss)
+                      (epochs + 1, loss / len(x_data)))
+            epochs += 1
 
         return self
 
-    def predict(self, X_test, y_test, num_samples=100):
+    def predict(self, X_test, y_test, num_samples=100): 
+        """
+        predict [summary]
+        
+        Args:
+            X_test ([type]): [description]
+            y_test ([type]): [description]
+            num_samples (int, optional): [description]. Defaults to 100.
+        
+        Returns:
+            [type]: [description]
+        """
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
         y_data_test = torch.tensor(y_test, dtype=torch.float).to(self.Device)
         
@@ -79,7 +100,41 @@ class BayesianNeuralNetworkRegression:
         stds, means = torch.std_mean(predictions, 0)
         return stds.cpu().detach().numpy(), means.cpu().detach().numpy()
 
-    
+    def save(self,path):
+        """
+        save [summary]
+        
+        Args:
+            path ([type]): [description]
+        """
+        model_path= path +'_model' 
+        opt_path=path + '_opt'
+        torch.save(self.net.state_dict(), model_path)
+
+        self.optim.save(opt_path) 
+        ps = pyro.get_param_store() 
+        ps.save(path + '_params')     
+
+    def load(self,path,input_dim,output_dim):
+        """
+        load [summary]
+        
+        Args:
+            path ([type]): [description]
+            input_dim ([type]): [description]
+            output_dim ([type]): [description]
+        """
+        model_path=path + '_model' 
+        opt_path= path + '_opt'
+        self.net = NN(input_dim,output_dim)
+        self.net.load_state_dict(torch.load(model_path))
+
+        pyro.get_param_store().load(path + '_params')
+
+        self.optim = Adam({"lr": self.learning_rate}) 
+        self.optim.load(opt_path) 
+        self.guide = AutoDiagonalNormal(self.__model)
+        self.svi = SVI(self.__model, self.guide, self.optim, loss=Trace_ELBO())
 
     # TODO: Extract to utils
     def __split_training_set_to_batches(self, X_train_t, y_train_t, batch_size):
@@ -119,7 +174,7 @@ class BayesianNeuralNetworkRegression:
                         Normal(prediction_mean, scale),
                         obs=y_data)
         return prediction_mean
-        pass
+
 
 class NN(nn.Module):
     def __init__(self, input_size, output_size):
