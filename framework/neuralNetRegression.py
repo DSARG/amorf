@@ -11,9 +11,12 @@ from sklearn.model_selection import train_test_split
 import traceback
 
 # TODO: Add Docstring
+# TODO: Add Data Loaders
+
+
 class NeuralNetRegressor:
 
-    def __init__(self, model=None, patience=5, learning_rate=0.01, print_after_epochs=10, batch_size=None, use_gpu=False):
+    def __init__(self, model=None, patience=5, learning_rate=0.01, training_limit=None, print_after_epochs=10, batch_size=None, use_gpu=False):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -32,6 +35,10 @@ class NeuralNetRegressor:
         self.learning_rate = learning_rate
         self.print_after_epochs = print_after_epochs
         self.batch_size = batch_size
+        if isinstance(training_limit, int):
+            self.training_limit = training_limit
+        else:
+            self.training_limit = None
 
     def fit(self, X_train, y_train):
 
@@ -46,7 +53,6 @@ class NeuralNetRegressor:
             X_train, y_train, self.Device)
         X_validate_t, y_validate_t = self.model.convert_train_set_to_tensor(
             X_validate, y_validate, self.Device)
-
 
         self.optimizer = optim.Adam(
             self.model.parameters(), self.learning_rate)
@@ -70,7 +76,6 @@ class NeuralNetRegressor:
             # caculate validation loss an perform early stopping
             y_pred_val = self.model(X_validate_t)
             validation_loss = self.loss_fn(y_pred_val, y_validate_t)
-            stop = stopper.stop(validation_loss)
 
             if epochs % self.print_after_epochs == 0:
                 y_pred_train = self.model(X_train_t)
@@ -80,7 +85,10 @@ class NeuralNetRegressor:
                     y_pred_train, y_train_t)
                 print('Validation Error: {} \nTrain Error: {}'.format(
                     validation_error, train_error))
+            stop = stopper.stop(validation_loss)
             epochs += 1
+            if self.training_limit is not None and self.training_limit >= epochs:
+                stop = False
 
         y_pred_train = self.model(X_train_t)
         final_train_error = er.tensor_average_relative_root_mean_squared_error(
@@ -183,7 +191,7 @@ class Linear_NN_Model(nn.Module):
 class Convolutional_NN_Model(nn.Module):
     def __init__(self, input_dim, output_dim, p_dropout=0.5):
         super().__init__()
-        self.input_dim = input_dim 
+        self.input_dim = input_dim
         self.output_dim = output_dim
         self.p_dropout = p_dropout
         width_out = self.__get_output_size(input_dim)

@@ -6,7 +6,7 @@ import numpy
 import torch
 import os
 
-
+# TODO: Test for training Limit
 class TestLinearNeuralNet(unittest.TestCase):
     def setUp(self):
         X, y = ds.EDM().get_numpy()
@@ -15,8 +15,6 @@ class TestLinearNeuralNet(unittest.TestCase):
         self.selectors = ['mean', 'max', 'doubleInput']
         self.input_dim = len(self.X_train[0, :])
         self.target_dim = len(self.y_train[0, :])
-
-    # TODO: def test_initialization(self)
 
     def test_predict_without_GPU(self):
 
