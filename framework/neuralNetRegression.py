@@ -10,11 +10,24 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import traceback
 
-# TODO: Add Docstring
 # TODO: Add Data Loaders
 
 
 class NeuralNetRegressor:
+    """Regressor that uses PyTorch models to predict multiple targets
+
+    Raises:
+        ValueError: If given model ist not instance of pytorch.NN.nodule
+
+    Args:
+        model (pytorch.NN.Module): PyTorch Model to use
+        patience (patience for early stopping): Stop training after p continous incrementations
+        learning_rate (float): learning rate for optimizer
+        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
+        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        batch_size (int): Default None - otherwise training set is split into batches of given size
+        use_gpu (bool): Flag that allows usage of cuda cores for calculations
+    """
 
     def __init__(self, model=None, patience=5, learning_rate=0.01, training_limit=None, print_after_epochs=10, batch_size=None, use_gpu=False):
         self.Device = 'cpu'
@@ -41,6 +54,15 @@ class NeuralNetRegressor:
             self.training_limit = None
 
     def fit(self, X_train, y_train):
+        """Fits the model to the training data set
+
+        Args:
+            X_train (nd.array): Set of descriptive Variables
+            y_train (nd.array): Set of target Variables
+
+        Returns:
+            NeuralNetRegressor: fitted NeuralNetRegressor
+        """
 
         if self.model is None:
             self.model = Linear_NN_Model(input_dim=len(X_train[0]), output_dim=len(
@@ -108,6 +130,14 @@ class NeuralNetRegressor:
             return torch.split(X_train_t, batch_size), torch.split(y_train_t, batch_size)
 
     def predict(self, X_test):
+        """Predicts the target variables for the given test set
+
+        Args:
+            X_test (np.ndarray): Test set withdescriptive variables
+
+        Returns:
+            np.ndarray: Predicted target variables
+        """
 
         X_test_t = self.model.convert_test_set_to_tensor(X_test, self.Device)
 
@@ -118,12 +148,22 @@ class NeuralNetRegressor:
         return y_pred_t.detach().numpy() if self.Device is 'cpu' else y_pred_t.cpu().detach().numpy()
 
     def save(self, store_path):
+        """Save model and store it at given path
+
+        Args:
+            store_path (string): Path to store model at
+        """
         try:
             torch.save(self.model, store_path + '.ckpt')
         except Exception:
             print(traceback.format_exc())
 
     def load(self, load_path):
+        """Load model from path
+
+        Args:
+            load_path (string): Path to saved model
+        """
         try:
             model = torch.load(load_path).to(self.Device)
             self.model = model

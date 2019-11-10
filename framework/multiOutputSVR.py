@@ -10,15 +10,17 @@ class MLSSVR:
     Original Paper:
     Shuo Xu, Xin An, Xiaodong Qiao, Lijun Zhu, and Lin Li, 2013.
     Multi-Output Least-Squares Support Vector Regression Machines.
-    Pattern Recognition Letters, Vol. 34, No. 9, pp. 1078-1084.
+    Pattern Recognition Letters, Vol. 34, No. 9, pp. 1078-1084. 
+
+    Raises: 
+        ValueError : If Kernel-selector is invalid 
+        ValueError : If dimensions do not match
 
     Args:
         kernel_param1 (float): first Parameter for kernel function
         kernel_param1 (float):  seconde Parameter for kernel function
         kernel_selector (string): One of 'linear','poly','rbf','erbf','sigmoid'
 
-    Returns:
-        [type]: [description]
     """
 
     def __init__(self, kernel_param1, kernel_param2, kernel_selector="linear"):
@@ -43,7 +45,7 @@ class MLSSVR:
         elif kernel_selector.lower() == 'rbf':
 
             K = rbf_kernel(X, Z, gamma=param1)
-        #
+        #TODO: Add ERBF
         # elif kernel_selector.lower() is 'erbf':
         elif kernel_selector.lower() == 'sigmoid':
             K = np.tanh(param1 * X @ Z.T / len(X[0]) + param2) 
@@ -103,7 +105,7 @@ class MLSSVR:
         return self
 
     def predict(self, X_test, X_train):
-        """Predicts the
+        """Predicts the target variables for the given test set
 
         Args:
             X_test (np.ndarray): Test set withdescriptive variables
