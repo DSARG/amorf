@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import traceback
 
-
+# TODO: add default model to avoid having to initialize a pytorch model first
 class NeuralNetRegressor:
 
     def __init__(self, model, patience=5, learning_rate=0.01, print_after_epochs=10, batch_size=None, use_gpu=False):

@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import numpy 
 
 class TestBayesianRegression(unittest.TestCase): 
-
+    # TODO: Add tests
     def setUp(self):
         X, y = ds.EDM().get_numpy()
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -16,6 +16,10 @@ class TestBayesianRegression(unittest.TestCase):
     
     def test_fit_with_gpu(): 
 
-    def test_predict_with_gpu(): 
+    def test_predict_with_gpu():  
+
+    def test_load(): 
+
+    def test_save():
 
     
