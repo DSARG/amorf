@@ -30,8 +30,20 @@ class TestLinearNeuralNet(unittest.TestCase):
             result.shape, (len(self.X_test), len(self.y_test[0, :])))
         self.assertTrue(type(result) is numpy.ndarray)
         self.assertTrue(result.dtype is numpy.dtype('float32')
-                        or result.dtype is numpy.dtype('float64'))
+                        or result.dtype is numpy.dtype('float64')) 
+    
+    def test_predict_without_GPU_default_model(self):
+        fittedReg = nnRegressor.NeuralNetRegressor(patience=1).fit(
+            self.X_train, self.y_train)
 
+        result = fittedReg.predict(self.X_test)
+        self.assertEqual(next(fittedReg.model.parameters()).is_cuda, False)
+        self.assertEqual(
+            result.shape, (len(self.X_test), len(self.y_test[0, :])))
+        self.assertTrue(type(result) is numpy.ndarray)
+        self.assertTrue(result.dtype is numpy.dtype('float32')
+                        or result.dtype is numpy.dtype('float64')) 
+    
     def test_predict_with_GPU(self):
 
         model = nnRegressor.Linear_NN_Model(
@@ -95,6 +107,18 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
             result.shape, (len(self.X_test), len(self.y_test[0, :])))
         self.assertTrue(type(result) is numpy.ndarray)
         self.assertTrue(result.dtype is numpy.dtype('float32')
+                        or result.dtype is numpy.dtype('float64')) 
+
+    def test_predict_without_GPU_default_model(self):
+        fittedReg = nnRegressor.NeuralNetRegressor(patience=1).fit(
+            self.X_train, self.y_train)
+
+        result = fittedReg.predict(self.X_test)
+        self.assertEqual(next(fittedReg.model.parameters()).is_cuda, False)
+        self.assertEqual(
+            result.shape, (len(self.X_test), len(self.y_test[0, :])))
+        self.assertTrue(type(result) is numpy.ndarray)
+        self.assertTrue(result.dtype is numpy.dtype('float32')
                         or result.dtype is numpy.dtype('float64'))
 
     def test_predict_with_GPU(self):
@@ -112,7 +136,9 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
             result.shape, (len(self.X_test), len(self.y_test[0, :])))
         self.assertTrue(type(result) is numpy.ndarray)
         self.assertTrue(result.dtype is numpy.dtype('float32') or
-                        result.dtype is numpy.dtype('float64'))
+                        result.dtype is numpy.dtype('float64')) 
+
+    
 
 class TestFullScenarios(unittest.TestCase): 
     pass

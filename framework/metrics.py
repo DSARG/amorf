@@ -125,5 +125,3 @@ def average_root_mean_squared_error(y_pred, y_test):
                        / len(y_test)) ))/len(y_test[0, :])
     return result
 
-# TODO: average Relative Error
-# TODO: -> Everything in the paper

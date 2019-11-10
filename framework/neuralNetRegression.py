@@ -10,26 +10,35 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import traceback
 
-# TODO: add default model to avoid having to initialize a pytorch model first
+
 class NeuralNetRegressor:
 
-    def __init__(self, model, patience=5, learning_rate=0.01, print_after_epochs=10, batch_size=None, use_gpu=False):
-        if not isinstance(model, nn.Module):
-            raise ValueError(
-                '\'{}\' is not a valid instance of pytorch.nn'.format(model))
+    def __init__(self, model=None, patience=5, learning_rate=0.01, print_after_epochs=10, batch_size=None, use_gpu=False):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
             self.Device = "cuda:0"
+        if model is not None:
+            if not isinstance(model, nn.Module):
+                raise ValueError(
+                    '\'{}\' is not a valid instance of pytorch.nn'.format(model))
+            else:
+                self.model = model.to(self.Device)
+        else:
+            self.model = None
 
-        self.model = model.to(self.Device)
-        self.loss_fn = er.tensor_average_relative_root_mean_squared_error #nn.MSELoss()
+        self.loss_fn = er.tensor_average_relative_root_mean_squared_error  # nn.MSELoss()
         self.patience = patience
         self.learning_rate = learning_rate
         self.print_after_epochs = print_after_epochs
         self.batch_size = batch_size
 
     def fit(self, X_train, y_train):
+
+        if self.model is None:
+            self.model = Linear_NN_Model(input_dim=len(X_train[0]), output_dim=len(
+                y_train[0]), selector='max', p_dropout_1=0.2, p_dropout_2=0.2).to(self.Device)
+
         # Create Validation Set from train Set
         X_train, X_validate, y_train, y_validate = train_test_split(
             X_train, y_train, test_size=0.1)
@@ -38,9 +47,11 @@ class NeuralNetRegressor:
         X_validate_t, y_validate_t = self.model.convert_train_set_to_tensor(
             X_validate, y_validate, self.Device)
 
-        self.optimizer = optim.Adam(self.model.parameters(), self.learning_rate)
+
+        self.optimizer = optim.Adam(
+            self.model.parameters(), self.learning_rate)
         self.model.train()
-        
+
         stopper = early(self.patience)
         stop = False
         epochs = 0
@@ -115,11 +126,11 @@ class NeuralNetRegressor:
 class AbstractNeuralNet(ABC):
 
     @abstractmethod
-    def convert_train_set_to_tensor(self, X_train, y_train,device):
+    def convert_train_set_to_tensor(self, X_train, y_train, device):
         pass
 
     @abstractmethod
-    def convert_test_set_to_tensor(self, X_test,device):
+    def convert_test_set_to_tensor(self, X_test, device):
         pass
 
 
@@ -195,13 +206,13 @@ class Convolutional_NN_Model(nn.Module):
         out = self.fc2(out)
         return out
 
-    def convert_train_set_to_tensor(self, X_train, y_train,device):
+    def convert_train_set_to_tensor(self, X_train, y_train, device):
         X_train_t = torch.from_numpy(X_train).to(device).float().reshape(
             len(X_train), 1, len(X_train[0]))
         y_train_t = torch.from_numpy(y_train).to(device).float()
         return X_train_t, y_train_t
 
-    def convert_test_set_to_tensor(self, X_test,device):
+    def convert_test_set_to_tensor(self, X_test, device):
         X_test_t = torch.from_numpy(X_test).to(device).float().reshape(
             len(X_test), 1, len(X_test[0]))
         return X_test_t
