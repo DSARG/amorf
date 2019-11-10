@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import traceback
 
-
+# TODO: Add Docstring
 class NeuralNetRegressor:
 
     def __init__(self, model=None, patience=5, learning_rate=0.01, print_after_epochs=10, batch_size=None, use_gpu=False):
@@ -117,8 +117,8 @@ class NeuralNetRegressor:
 
     def load(self, load_path):
         try:
-            model = torch.load(load_path)
-            return model
+            model = torch.load(load_path).to(self.Device)
+            self.model = model
         except Exception:
             print(traceback.format_exc())
 
@@ -183,6 +183,8 @@ class Linear_NN_Model(nn.Module):
 class Convolutional_NN_Model(nn.Module):
     def __init__(self, input_dim, output_dim, p_dropout=0.5):
         super().__init__()
+        self.input_dim = input_dim 
+        self.output_dim = output_dim
         self.p_dropout = p_dropout
         width_out = self.__get_output_size(input_dim)
         self.layer1 = nn.Sequential(
