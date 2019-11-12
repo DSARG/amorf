@@ -10,11 +10,23 @@ from pyro.distributions import Normal, Categorical, Uniform, Delta
 from pyro.infer import SVI, Trace_ELBO, TracePredictive, EmpiricalMarginal
 from pyro.optim import Adam
 from pyro.infer.autoguide import AutoDiagonalNormal
-from framework.utils import EarlyStopping as early 
-# TODO: clear Imports 
+from framework.utils import EarlyStopping as early
 
+# TODO: clear Imports
+# TODO: add Validation loss 
+# TODO: add training Limit
 
 class BayesianNeuralNetworkRegression:
+    """Bayesian Neural Network that uses a Pyro model to predict multiple targets
+
+    Args:
+        patience (int): Stop training after p continous incrementations
+        batch_size (int): Default None - otherwise training set is split into batches of given size
+        learning_rate (float): learning rate for optimizer
+        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        use_gpu (bool):  Flag that allows usage of cuda cores for calculations
+    """
+
     def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, print_after_epochs=500, use_gpu=False):
         self.patience = patience
         self.batch_size = batch_size
@@ -26,15 +38,14 @@ class BayesianNeuralNetworkRegression:
             self.Device = "cuda:0"
 
     def fit(self, X_train, y_train):
-        """
-        fit [summary]
-        
+        """Fits the model to the training data set
+
         Args:
-            X_train ([type]): [description]
-            y_train ([type]): [description]
-        
+            X_train (nd.array): Set of descriptive Variables
+            y_train (nd.array): Set of target Variables
+
         Returns:
-            [type]: [description]
+            NeuralNetRegressor: fitted NeuralNetRegressor
         """
         x_data = torch.tensor(X_train, dtype=torch.float).to(self.Device)
         y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device)
@@ -68,23 +79,20 @@ class BayesianNeuralNetworkRegression:
 
         return self
 
-    def predict(self, X_test, y_test, num_samples=100): 
-        """
-        predict [summary]
-        
+    def predict(self, X_test, y_test, num_samples=100):
+        """Predicts the target variables for the given test set
+
         Args:
-            X_test ([type]): [description]
-            y_test ([type]): [description]
-            num_samples (int, optional): [description]. Defaults to 100.
-        
+            X_test (np.ndarray): Test set withdescriptive variables
+
         Returns:
-            [type]: [description]
+            np.ndarray: Predicted target variables
         """
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
         y_data_test = torch.tensor(y_test, dtype=torch.float).to(self.Device)
-        
+
         #get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
-        
+
         def wrapped_model(x_data, y_data):
             pyro.sample("prediction", Delta(self.__model(x_data, y_data)))
 
@@ -100,39 +108,36 @@ class BayesianNeuralNetworkRegression:
         stds, means = torch.std_mean(predictions, 0)
         return stds.cpu().detach().numpy(), means.cpu().detach().numpy()
 
-    def save(self,path):
-        """
-        save [summary]
-        
+    def save(self, path):
+        """Save model and store it at given path
+
         Args:
-            path ([type]): [description]
+            store_path (string): Path to store model at
         """
-        model_path= path +'_model' 
-        opt_path=path + '_opt'
+        model_path = path + '_model'
+        opt_path = path + '_opt'
         torch.save(self.net.state_dict(), model_path)
 
-        self.optim.save(opt_path) 
-        ps = pyro.get_param_store() 
-        ps.save(path + '_params')     
+        self.optim.save(opt_path)
+        ps = pyro.get_param_store()
+        ps.save(path + '_params')
 
-    def load(self,path,input_dim,output_dim):
-        """
-        load [summary]
-        
+
+    def load(self, path):
+        """Load model from path
+
         Args:
-            path ([type]): [description]
-            input_dim ([type]): [description]
-            output_dim ([type]): [description]
+            load_path (string): Path to saved model
         """
-        model_path=path + '_model' 
-        opt_path= path + '_opt'
-        self.net = NN(input_dim,output_dim)
+        model_path = path + '_model'
+        opt_path = path + '_opt'
+        self.net = NN()
         self.net.load_state_dict(torch.load(model_path))
 
         pyro.get_param_store().load(path + '_params')
 
-        self.optim = Adam({"lr": self.learning_rate}) 
-        self.optim.load(opt_path) 
+        self.optim = Adam({"lr": self.learning_rate})
+        self.optim.load(opt_path)
         self.guide = AutoDiagonalNormal(self.__model)
         self.svi = SVI(self.__model, self.guide, self.optim, loss=Trace_ELBO())
 
@@ -143,7 +148,7 @@ class BayesianNeuralNetworkRegression:
         else:
             return torch.split(X_train_t, batch_size), torch.split(y_train_t, batch_size)
 
-    def __model(self,x_data, y_data):
+    def __model(self, x_data, y_data):
         fc1w_prior = Normal(loc=torch.zeros_like(
             self.net.fc1.weight).to(self.Device), scale=torch.ones_like(self.net.fc1.weight).to(self.Device))
         fc1b_prior = Normal(loc=torch.zeros_like(
@@ -177,7 +182,7 @@ class BayesianNeuralNetworkRegression:
 
 
 class NN(nn.Module):
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size=None, output_size=None):
         super(NN, self).__init__()
         self.batchNorm = nn.BatchNorm1d(256)
         self.dropout = nn.Dropout(0.2)

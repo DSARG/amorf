@@ -90,15 +90,23 @@ class SingleTargetMethod:
 
 
 class AutoEncoderRegression:
-    #TODO: Add Docstring
-    """[summary]
-    
+    """Regressor that uses an Autoencoder to reduce dimensionality of target variables 
+
     Raises:
-        Warning: [description]
-        ValueError: [description]
-    
-    Returns:
-        [type]: [description]
+        Warning: If Custom Regressor is not valid, default estimator will be
+                used instead
+        ValueError: If selector is not a valid value
+
+    Args:
+        regressor (string): Can be one of the following linear', 'kneighbors',
+                            'adaboost', 'gradientboost', 'mlp', 'svr', 'xgb'
+        custom_regressor (object): Custom Estimator that must implement 'fit()'
+                            and 'predict()' function.
+        patience (int): Stop training after p continous incrementations
+        batch_size (int): Default None - otherwise training set is split into batches of given size
+        learning_rate (float): learning rate for optimizer
+        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        use_gpu (bool): Flag that allows usage of cuda cores for calculations
     """
     # TODO: Add Data Loaders
     # FIXME: Naming Inconsistencies (y_train, y_data) -> find scheme to apply everywhere
@@ -136,18 +144,20 @@ class AutoEncoderRegression:
                     custom_regressor, regressor))
         else:
             raise ValueError(
-                '\'{}\' is not a valid selector for SingleTargetMethod'.format(regressor))
+                '\'{}\' is not a valid selector for AutoEncoderRegression'.format(regressor))
 
     def fit(self, X_train, y_train):
-        #TODO: Add Docstring
-        """[summary]
-        
+        """Fits the model to the training data set 
+
+        Trains an AutoEncoder to encode multidimensional target variables into scalar. 
+        The resulting data set is used to train the given regressor to predict these scalars.
+
         Args:
-            X_train ([type]): [description]
-            y_train ([type]): [description]
-        
+            X_train (nd.array): Set of descriptive Variables
+            y_train (nd.array): Set of target Variables
+
         Returns:
-            [type]: [description]
+            AutoEncoderRegressor: fitted AutoEncoderRegressor
         """
         n_targets = len(y_train[0])
         X_train, X_val, y_train, y_val = train_test_split(
@@ -206,14 +216,13 @@ class AutoEncoderRegression:
         return self
 
     def predict(self, X_test):
-        #TODO: Add Docstring
-        """[summary]
-        
+        """Predicts the encoded target variables and decodes them for the given test set
+
         Args:
-            X_test ([type]): [description]
-        
+            X_test (np.ndarray): Test set with descriptive variables
+
         Returns:
-            [type]: [description]
+            np.ndarray: Predicted target variables
         """
         y_pred_test = self.regressor.predict(X_test)
         y_pred_test_t = torch.tensor(

@@ -21,7 +21,7 @@ class NeuralNetRegressor:
 
     Args:
         model (pytorch.NN.Module): PyTorch Model to use
-        patience (patience for early stopping): Stop training after p continous incrementations
+        patience (int): Stop training after p continous incrementations
         learning_rate (float): learning rate for optimizer
         training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
@@ -110,7 +110,7 @@ class NeuralNetRegressor:
             stop = stopper.stop(validation_loss)
             epochs += 1
             if self.training_limit is not None and self.training_limit >= epochs:
-                stop = False
+                stop = True
 
         y_pred_train = self.model(X_train_t)
         final_train_error = er.tensor_average_relative_root_mean_squared_error(
@@ -133,7 +133,7 @@ class NeuralNetRegressor:
         """Predicts the target variables for the given test set
 
         Args:
-            X_test (np.ndarray): Test set withdescriptive variables
+            X_test (np.ndarray): Test set with descriptive variables
 
         Returns:
             np.ndarray: Predicted target variables

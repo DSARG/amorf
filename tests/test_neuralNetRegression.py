@@ -6,7 +6,7 @@ import numpy
 import torch
 import os
 
-# TODO: Test for training Limit
+
 class TestLinearNeuralNet(unittest.TestCase):
     def setUp(self):
         X, y = ds.EDM().get_numpy()
@@ -23,6 +23,21 @@ class TestLinearNeuralNet(unittest.TestCase):
         fittedReg = nnRegressor.NeuralNetRegressor(model=model, patience=1).fit(
             self.X_train, self.y_train)
 
+        result = fittedReg.predict(self.X_test)
+        self.assertEqual(next(fittedReg.model.parameters()).is_cuda, False)
+        self.assertEqual(
+            result.shape, (len(self.X_test), len(self.y_test[0, :])))
+        self.assertTrue(type(result) is numpy.ndarray)
+        self.assertTrue(result.dtype is numpy.dtype('float32')
+                        or result.dtype is numpy.dtype('float64'))
+
+    def test_predict_without_GPU_training_limit(self):
+
+        model = nnRegressor.Linear_NN_Model(
+            self.input_dim, self.target_dim, 'mean')
+        fittedReg = nnRegressor.NeuralNetRegressor(model=model, patience=100,training_limit=1).fit(
+            self.X_train, self.y_train) 
+        
         result = fittedReg.predict(self.X_test)
         self.assertEqual(next(fittedReg.model.parameters()).is_cuda, False)
         self.assertEqual(
