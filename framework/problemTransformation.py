@@ -207,7 +207,7 @@ class AutoEncoderRegression:
                 printMessage('epoch [{}], train_loss:{} \n \t\t validation_loss:{}'.format(
                     epoch + 1, loss, v_loss),self.verbosity)
             epoch += 1 
-            if self.training_limit is not None and self.training_limit >= epochs:
+            if self.training_limit is not None and self.training_limit >= epoch:
                 stop = True
 
         self.best_model = autoencoder(n_targets)

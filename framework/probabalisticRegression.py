@@ -51,9 +51,12 @@ class BayesianNeuralNetworkRegression:
 
         Returns:
             NeuralNetRegressor: fitted NeuralNetRegressor
-        """
+        """ 
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train, y_train, test_size=0.1)
         x_data = torch.tensor(X_train, dtype=torch.float).to(self.Device)
-        y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device)
+        y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device) 
+        X_val = torch.tensor(X_val, dtype=torch.float).to(self.Device)
 
         n_targets = len(y_data[0])
         n_features = len(x_data[0])
