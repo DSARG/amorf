@@ -103,22 +103,24 @@ class AutoEncoderRegression:
                             'adaboost', 'gradientboost', 'mlp', 'svr', 'xgb'
         custom_regressor (object): Custom Estimator that must implement 'fit()'
                             and 'predict()' function.
-        patience (int): Stop training after p continous incrementations
         batch_size (int): Default None - otherwise training set is split into batches of given size
         learning_rate (float): learning rate for optimizer
-        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
-        verbosity (int): 0 to only print errors, 1 (default) to print status information
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
+        patience (int): Stop training after p continous incrementations
+        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
+        verbosity (int): 0 to only print errors, 1 (default) to print status information
+        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
     # TODO: Add Data Loaders
     # FIXME: Naming Inconsistencies (y_train, y_data) -> find scheme to apply everywhere
 
-    def __init__(self, regressor='gradientboost', custom_regressor=None, patience=5, batch_size=None, learning_rate=1e-3, print_after_epochs=500, verbosity=1, use_gpu=False):
+    def __init__(self, regressor='gradientboost', custom_regressor=None, batch_size=None, learning_rate=1e-3, use_gpu=False, patience=5,  training_limit=None, verbosity=1, print_after_epochs=500):
         self.learning_rate = learning_rate
         self.path = ".autoncoder_bestmodel_validation"
         self.print_after_epochs = print_after_epochs
         self.patience = patience
-        self.batch_size = batch_size
+        self.batch_size = batch_size 
+        self.training_limit = training_limit
         self.verbosity = verbosity
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
@@ -204,7 +206,9 @@ class AutoEncoderRegression:
             if epoch % self.print_after_epochs == 0:
                 printMessage('epoch [{}], train_loss:{} \n \t\t validation_loss:{}'.format(
                     epoch + 1, loss, v_loss),self.verbosity)
-            epoch += 1
+            epoch += 1 
+            if self.training_limit is not None and self.training_limit >= epochs:
+                stop = True
 
         self.best_model = autoencoder(n_targets)
         self.best_model.load_state_dict(torch.load(self.path))

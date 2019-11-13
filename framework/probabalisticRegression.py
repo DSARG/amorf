@@ -21,15 +21,16 @@ class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
 
     Args:
-        patience (int): Stop training after p continous incrementations
         batch_size (int): Default None - otherwise training set is split into batches of given size
         learning_rate (float): learning rate for optimizer
-        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
-        verbosity (int): 0 to only print errors, 1 (default) to print status information
         use_gpu (bool):  Flag that allows usage of cuda cores for calculations
+        patience (int): Stop training after p continous incrementations
+        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
+        verbosity (int): 0 to only print errors, 1 (default) to print status information
+        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, training_limit=None, print_after_epochs=500,verbosity=1, use_gpu=False):
+    def __init__(self, batch_size=None, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
         self.patience = patience
         self.batch_size = batch_size
         self.learning_rate = learning_rate 

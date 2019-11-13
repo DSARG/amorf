@@ -22,16 +22,16 @@ class NeuralNetRegressor:
 
     Args:
         model (pytorch.NN.Module): PyTorch Model to use
-        patience (int): Stop training after p continous incrementations
-        learning_rate (float): learning rate for optimizer
-        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
-        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
         batch_size (int): Default None - otherwise training set is split into batches of given size
+        learning_rate (float): learning rate for optimizer
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
+        patience (int): Stop training after p continous incrementations
+        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
         verbosity (int): 0 to only print errors, 1 (default) to print status information
+        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, model=None, patience=5, learning_rate=0.01, training_limit=None, print_after_epochs=10, batch_size=None, use_gpu=False, verbosity=1):
+    def __init__(self, model=None, batch_size=None, learning_rate=0.01, use_gpu=False, patience=5, training_limit=None,  verbosity=1, print_after_epochs=10):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
