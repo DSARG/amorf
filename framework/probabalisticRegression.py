@@ -14,7 +14,7 @@ from framework.utils import EarlyStopping as early
 
 # TODO: clear Imports
 # TODO: add Validation loss 
-# TODO: add training Limit
+# TODO: Data Loaders
 
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
@@ -27,10 +27,11 @@ class BayesianNeuralNetworkRegression:
         use_gpu (bool):  Flag that allows usage of cuda cores for calculations
     """
 
-    def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, print_after_epochs=500, use_gpu=False):
+    def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, training_limit=None, print_after_epochs=500, use_gpu=False):
         self.patience = patience
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
+        self.learning_rate = learning_rate 
+        self.training_limit = training_limit
         self.print_after_epochs = print_after_epochs
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
@@ -75,7 +76,10 @@ class BayesianNeuralNetworkRegression:
             if epochs % self.print_after_epochs == 0:
                 print("[iteration %04d] loss: %.4f" %
                       (epochs + 1, loss / len(x_data)))
-            epochs += 1
+            epochs += 1 
+
+            if self.training_limit is not None and self.training_limit >= epochs:
+                stop = True
 
         return self
 
@@ -116,7 +120,7 @@ class BayesianNeuralNetworkRegression:
         """
         model_path = path + '_model'
         opt_path = path + '_opt'
-        torch.save(self.net.state_dict(), model_path)
+        torch.save(self.net, model_path)
 
         self.optim.save(opt_path)
         ps = pyro.get_param_store()
@@ -131,8 +135,7 @@ class BayesianNeuralNetworkRegression:
         """
         model_path = path + '_model'
         opt_path = path + '_opt'
-        self.net = NN()
-        self.net.load_state_dict(torch.load(model_path))
+        self.net = torch.load(model_path)
 
         pyro.get_param_store().load(path + '_params')
 
