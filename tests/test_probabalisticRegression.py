@@ -1,9 +1,9 @@
 import os
 import numpy
 import unittest
+from framework.probabalisticRegression import BayesianNeuralNetworkRegression
 import framework.datasets as ds
 from sklearn.model_selection import train_test_split
-from framework.probabalisticRegression import BayesianNeuralNetworkRegression
 
 
 class TestBayesianRegression(unittest.TestCase):
@@ -25,7 +25,6 @@ class TestBayesianRegression(unittest.TestCase):
         stds, means = model.predict(self.X_test, self.y_test)  
         self.assertEqual(stds.shape, (16,2)) 
         self.assertEqual(means.shape,(16,2))
-
 
     def test_fit_and_predict_with_gpu(self):
         model = BayesianNeuralNetworkRegression(

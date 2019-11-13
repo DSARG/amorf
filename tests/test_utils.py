@@ -61,6 +61,20 @@ class TestEarlyStopping(unittest.TestCase):
         self.assertTrue(counter is 6)
         self.assertTrue(falseCounter is 6)
 
+# class TestRaiseWarningOrError(unittest.TestCase): 
 
+#     def test_raisWarningOrError(self): 
+#         with self.assertRaises(ValueError): 
+#             utils.raiseWarningOrError(ValueError,'Hello World',verbosity=0) 
+#         with self.assertRaises(ValueError): 
+#             utils.raiseWarningOrError(ValueError,'Hello World',verbosity=1)
+#         with self.assertRaises(ValueError): 
+#             utils.raiseWarningOrError(ValueError,'Hello World',verbosity=2) 
+#         
+#         utils.raiseWarningOrError(Warning,'Hello World',verbosity=0)
+#         with self.assertRaises(Warning): 
+#             utils.raiseWarningOrError(Warning,'Hello World',verbosity=1) 
+#         with self.assertRaises(Warning): 
+#             utils.raiseWarningOrError(Warning,'Hello World',verbosity=2) 
 if __name__ == '__main__':
     unittest.main()

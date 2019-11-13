@@ -39,3 +39,14 @@ class EarlyStopping:
             return True
         else:
             return False
+
+def printMessage(Message,verbosity):  
+    if(verbosity ==1): 
+        print(Message)
+    
+# def raiseWarningOrError(exceptionType,message,verbosity): 
+#     if(isinstance(exceptionType,Warning) and verbosity >= 1): 
+#         raise Warning(message) 
+#     elif(isinstance(exceptionType,BaseException) and not isinstance(exceptionType,Warning)): 
+#         raise exceptionType(message)
+

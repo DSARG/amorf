@@ -24,15 +24,17 @@ class BayesianNeuralNetworkRegression:
         batch_size (int): Default None - otherwise training set is split into batches of given size
         learning_rate (float): learning rate for optimizer
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        verbosity (int): 0 to only print errors, 1 (default) to print status information
         use_gpu (bool):  Flag that allows usage of cuda cores for calculations
     """
 
-    def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, training_limit=None, print_after_epochs=500, use_gpu=False):
+    def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, training_limit=None, print_after_epochs=500,verbosity=1 use_gpu=False):
         self.patience = patience
         self.batch_size = batch_size
         self.learning_rate = learning_rate 
         self.training_limit = training_limit
         self.print_after_epochs = print_after_epochs
+        self.verbosity = verbosity
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -74,8 +76,8 @@ class BayesianNeuralNetworkRegression:
                 stop = stopper.stop(loss)
 
             if epochs % self.print_after_epochs == 0:
-                print("[iteration %04d] loss: %.4f" %
-                      (epochs + 1, loss / len(x_data)))
+                printMessage("[iteration %04d] loss: %.4f" %
+                      (epochs + 1, loss / len(x_data)),self.verbosity)
             epochs += 1 
 
             if self.training_limit is not None and self.training_limit >= epochs:

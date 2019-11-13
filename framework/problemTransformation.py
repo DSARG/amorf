@@ -7,7 +7,8 @@ import xgboost as xgb
 from sklearn.neural_network import MLPRegressor
 
 # AutoEncoderRegression
-from framework.utils import EarlyStopping as early
+from framework.utils import EarlyStopping as early 
+from framework.utils import printMessage
 import torch
 from torch import nn
 import numpy as np
@@ -106,17 +107,19 @@ class AutoEncoderRegression:
         batch_size (int): Default None - otherwise training set is split into batches of given size
         learning_rate (float): learning rate for optimizer
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        verbosity (int): 0 to only print errors, 1 (default) to print status information
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
     """
     # TODO: Add Data Loaders
     # FIXME: Naming Inconsistencies (y_train, y_data) -> find scheme to apply everywhere
 
-    def __init__(self, regressor='gradientboost', custom_regressor=None, patience=5, batch_size=None, learning_rate=1e-3, print_after_epochs=500, use_gpu=False):
+    def __init__(self, regressor='gradientboost', custom_regressor=None, patience=5, batch_size=None, learning_rate=1e-3, print_after_epochs=500, verbosity=1, use_gpu=False):
         self.learning_rate = learning_rate
         self.path = ".autoncoder_bestmodel_validation"
         self.print_after_epochs = print_after_epochs
         self.patience = patience
         self.batch_size = batch_size
+        self.verbosity = verbosity
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -199,8 +202,8 @@ class AutoEncoderRegression:
             stop = stopper.stop(v_loss)
             # ===================log========================
             if epoch % self.print_after_epochs == 0:
-                print('epoch [{}], train_loss:{} \n \t\t validation_loss:{}'.format(
-                    epoch + 1, loss, v_loss))
+                printMessage('epoch [{}], train_loss:{} \n \t\t validation_loss:{}'.format(
+                    epoch + 1, loss, v_loss),self.verbosity)
             epoch += 1
 
         self.best_model = autoencoder(n_targets)
