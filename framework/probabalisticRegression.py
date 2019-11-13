@@ -5,7 +5,8 @@ import torch.optim as optim
 
 from numpy import mean, sum
 import numpy as np
-import pyro
+import pyro 
+from framework.utils import printMessage
 from pyro.distributions import Normal, Categorical, Uniform, Delta
 from pyro.infer import SVI, Trace_ELBO, TracePredictive, EmpiricalMarginal
 from pyro.optim import Adam
@@ -28,7 +29,7 @@ class BayesianNeuralNetworkRegression:
         use_gpu (bool):  Flag that allows usage of cuda cores for calculations
     """
 
-    def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, training_limit=None, print_after_epochs=500,verbosity=1 use_gpu=False):
+    def __init__(self, patience=5, batch_size=None, learning_rate=1e-3, training_limit=None, print_after_epochs=500,verbosity=1, use_gpu=False):
         self.patience = patience
         self.batch_size = batch_size
         self.learning_rate = learning_rate 
