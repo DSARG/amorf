@@ -7,15 +7,14 @@ import xgboost as xgb
 from sklearn.neural_network import MLPRegressor
 
 # AutoEncoderRegression
-from framework.utils import EarlyStopping as early 
-from framework.utils import printMessage
+from framework.utils import EarlyStoppingStopping, printMessage
 import torch
 from torch import nn
 import numpy as np
-import copy
-from sklearn.preprocessing import StandardScaler, Normalizer
 from sklearn.model_selection import train_test_split
 
+# TODO: Add Data Loaders
+# TODO: Consisten Naming
 
 class SingleTargetMethod:
     """ Performs regression for each target variable separately.
@@ -107,19 +106,17 @@ class AutoEncoderRegression:
         learning_rate (float): learning rate for optimizer
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
         patience (int): Stop training after p continous incrementations
-        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
+        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
         verbosity (int): 0 to only print errors, 1 (default) to print status information
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
-    # TODO: Add Data Loaders
-    # FIXME: Naming Inconsistencies (y_train, y_data) -> find scheme to apply everywhere
 
-    def __init__(self, regressor='gradientboost', custom_regressor=None, batch_size=None, learning_rate=1e-3, use_gpu=False, patience=5,  training_limit=None, verbosity=1, print_after_epochs=500):
+    def __init__(self, regressor='gradientboost', custom_regressor=None, batch_size=None, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
         self.learning_rate = learning_rate
         self.path = ".autoncoder_bestmodel_validation"
         self.print_after_epochs = print_after_epochs
         self.patience = patience
-        self.batch_size = batch_size 
+        self.batch_size = batch_size
         self.training_limit = training_limit
         self.verbosity = verbosity
         self.Device = 'cpu'
@@ -176,9 +173,9 @@ class AutoEncoderRegression:
         optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
         val_losses = []
 
-        stopper = early(self.patience)
+        stopper = EarlyStopping(self.patience)
         stop = False
-        epoch = 0
+        epochs = 0
 
         y_data_batched = self.__split_training_set_to_batches(
             y_data, self.batch_size)
@@ -195,20 +192,26 @@ class AutoEncoderRegression:
                 optimizer.step()
             # ===================validate========================
             model.eval()
-            val_pred = model(y_data_val)
-            v_loss = criterion(val_pred, y_data_val)
+            y_pred_val = model(y_data_val)
+            v_loss = criterion(y_pred_val, y_data_val)
             val_losses.append(v_loss.cpu().detach().numpy())
             if v_loss < best_score:
                 best_score = v_loss
                 torch.save(model.state_dict(), self.path)
             stop = stopper.stop(v_loss)
             # ===================log========================
-            if epoch % self.print_after_epochs == 0:
-                printMessage('epoch [{}], train_loss:{} \n \t\t validation_loss:{}'.format(
-                    epoch + 1, loss, v_loss),self.verbosity)
-            epoch += 1 
-            if self.training_limit is not None and self.training_limit >= epoch:
+            if epochs % self.print_after_epochs == 0:
+                printMessage('Epoch {}\nValidation Error: {}\n Train Error:{}'.format(
+                    epochs, loss, v_loss), self.verbosity)
+            epochs += 1
+            if self.training_limit is not None and self.training_limit >= epochs:
                 stop = True
+
+        y_pred_train = model(y_data)
+        final_train_error = criterion(y_pred_train, y_train)
+        final_validation_error = criterion(y_pred_val, y_data_val)
+        printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
+            epochs, final_train_error, final_validation_error), self.verbosity)
 
         self.best_model = autoencoder(n_targets)
         self.best_model.load_state_dict(torch.load(self.path))

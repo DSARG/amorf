@@ -1,17 +1,21 @@
+import traceback
 from abc import ABC, abstractmethod
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import framework.metrics as er
-from framework.utils import EarlyStopping as early 
-from framework.utils import printMessage
 from numpy import mean
-import numpy as np
 from sklearn.model_selection import train_test_split
-import traceback
+
+import framework.metrics as er
+from framework.utils import EarlyStopping as early
+from framework.utils import printMessage
 
 # TODO: Add Data Loaders
+# TODO: Consisten Naming
+# TODO: clear Imports
 
 
 class NeuralNetRegressor:
@@ -31,7 +35,7 @@ class NeuralNetRegressor:
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, model=None, batch_size=None, learning_rate=0.01, use_gpu=False, patience=5, training_limit=None,  verbosity=1, print_after_epochs=10):
+    def __init__(self, model=None, batch_size=None, learning_rate=0.01, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=10):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -108,8 +112,8 @@ class NeuralNetRegressor:
                     y_pred_val, y_validate_t)
                 train_error = er.tensor_average_relative_root_mean_squared_error(
                     y_pred_train, y_train_t)
-                printMessage('Validation Error: {} \nTrain Error: {}'.format(
-                    validation_error, train_error),self.verbosity)
+                printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
+                    epochs, validation_error, train_error), self.verbosity)
             stop = stopper.stop(validation_loss)
             epochs += 1
             if self.training_limit is not None and self.training_limit >= epochs:
@@ -122,7 +126,7 @@ class NeuralNetRegressor:
             y_pred_val, y_validate_t)
 
         printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
-            epochs, final_train_error, final_validation_error),self.verbosity)
+            epochs, final_train_error, final_validation_error), self.verbosity)
 
         return self
 
@@ -159,7 +163,7 @@ class NeuralNetRegressor:
         try:
             torch.save(self.model, store_path + '.ckpt')
         except Exception:
-            printMessage(traceback.format_exc(),self.verbosity)
+            printMessage(traceback.format_exc(), self.verbosity)
 
     def load(self, load_path):
         """Load model from path
@@ -171,7 +175,7 @@ class NeuralNetRegressor:
             model = torch.load(load_path).to(self.Device)
             self.model = model
         except Exception:
-            printMessage(traceback.format_exc(),self.verbosity)
+            printMessage(traceback.format_exc(), self.verbosity)
 
 
 class AbstractNeuralNet(ABC):
@@ -229,7 +233,7 @@ class Linear_NN_Model(nn.Module):
         X_test_t = torch.from_numpy(X_test).to(device).float()
         return X_test_t
 
-
+# Experimental
 @AbstractNeuralNet.register
 class Convolutional_NN_Model(nn.Module):
     def __init__(self, input_dim, output_dim, p_dropout=0.5):

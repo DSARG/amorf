@@ -3,23 +3,24 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from numpy import mean, sum
-import numpy as np
-import pyro 
-from framework.utils import printMessage
-from pyro.distributions import Normal, Categorical, Uniform, Delta
+import pyro
+from pyro.distributions import Normal, Uniform, Delta
 from pyro.infer import SVI, Trace_ELBO, TracePredictive, EmpiricalMarginal
 from pyro.optim import Adam
 from pyro.infer.autoguide import AutoDiagonalNormal
-from framework.utils import EarlyStopping as early
 
-# TODO: clear Imports
-# TODO: add Validation loss 
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from framework.utils import EarlyStopping, printMessage
 # TODO: Data Loaders
+# TODO: Consisten Naming
+# TODO: clear Imports
 
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
 
+    Uses Pyros Elbo Loss internally
     Args:
         batch_size (int): Default None - otherwise training set is split into batches of given size
         learning_rate (float): learning rate for optimizer
@@ -33,7 +34,7 @@ class BayesianNeuralNetworkRegression:
     def __init__(self, batch_size=None, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
         self.patience = patience
         self.batch_size = batch_size
-        self.learning_rate = learning_rate 
+        self.learning_rate = learning_rate
         self.training_limit = training_limit
         self.print_after_epochs = print_after_epochs
         self.verbosity = verbosity
@@ -51,12 +52,13 @@ class BayesianNeuralNetworkRegression:
 
         Returns:
             NeuralNetRegressor: fitted NeuralNetRegressor
-        """ 
+        """
         X_train, X_val, y_train, y_val = train_test_split(
             X_train, y_train, test_size=0.1)
         x_data = torch.tensor(X_train, dtype=torch.float).to(self.Device)
-        y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device) 
+        y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device)
         X_val = torch.tensor(X_val, dtype=torch.float).to(self.Device)
+        y_val = torch.tensor(y_val, dtype=torch.float).to(self.Device)
 
         n_targets = len(y_data[0])
         n_features = len(x_data[0])
@@ -70,24 +72,31 @@ class BayesianNeuralNetworkRegression:
             x_data, y_data, self.batch_size)
         pyro.clear_param_store()
         losses = []
-        stopper = early(self.patience)
+        stopper = EarlyStopping(self.patience)
         stop = False
         epochs = 0
         while(stop is False):
             # calculate the loss and take a gradient step
             for batch_X, batch_y in zip(X_train_t_batched, y_train_t_batched):
-                loss = self.svi.step(batch_X, batch_y)
-                losses.append(loss)
-                stop = stopper.stop(loss)
+                loss_batch = self.svi.step(batch_X, batch_y)
+                losses.append(loss_batch)
 
+            validation_error = self.svi.evaluate_loss(X_val, y_val)
+            train_error = self.svi.evaluate_loss(x_data, y_data)
+            stop = stopper.stop(validation_error)
             if epochs % self.print_after_epochs == 0:
-                printMessage("[iteration %04d] loss: %.4f" %
-                      (epochs + 1, loss / len(x_data)),self.verbosity)
-            epochs += 1 
+                printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
+                    epochs, validation_error, train_error), self.verbosity)
+
+            epochs += 1
 
             if self.training_limit is not None and self.training_limit >= epochs:
                 stop = True
 
+        final_train_error = self.svi.evaluate_loss(x_data, y_data)
+        final_validation_error = self.svi.evaluate_loss(X_val, y_val)
+        printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
+            epochs, final_train_error, final_validation_error), self.verbosity)
         return self
 
     def predict(self, X_test, y_test, num_samples=100):
@@ -102,7 +111,7 @@ class BayesianNeuralNetworkRegression:
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
         y_data_test = torch.tensor(y_test, dtype=torch.float).to(self.Device)
 
-        #get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
+        # get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
 
         def wrapped_model(x_data, y_data):
             pyro.sample("prediction", Delta(self.__model(x_data, y_data)))
@@ -132,7 +141,6 @@ class BayesianNeuralNetworkRegression:
         self.optim.save(opt_path)
         ps = pyro.get_param_store()
         ps.save(path + '_params')
-
 
     def load(self, path):
         """Load model from path
