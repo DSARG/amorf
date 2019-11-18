@@ -1,7 +1,6 @@
 import arff
 import numpy as np
 
-# TODO: Add sizes of Dataset to documentation
 
 class EDM():
     def __init__(self):
@@ -21,7 +20,7 @@ class EDM():
         Args:
 
         Returns:
-            (np.ndarray, np.ndarray): Numpy Arraya X and y of type np.float32
+            (np.ndarray, np.ndarray): Numpy Array X (n,16) and y (n,2) of type np.float32
 
         """
         return self.X, self.y
@@ -61,7 +60,7 @@ class RiverFlow1():
         Args:
 
         Returns:
-            (np.ndarray, np.ndarray): Numpy Arraya X and y of type np.float32
+            (np.ndarray, np.ndarray): Numpy Array X (n,64) and y (n,8) of type np.float32
 
         """
         return self.X, self.y
@@ -96,7 +95,7 @@ class WaterQuality():
         Args:
 
         Returns:
-            (np.ndarray, np.ndarray): Numpy Arraya X and y of type np.float32
+            (np.ndarray, np.ndarray): Numpy Array X (n,16) and y (n,14) of type np.float32
 
         """
         return self.X, self.y
@@ -130,7 +129,7 @@ class TransparentConductors():
         Args:
 
         Returns:
-            (np.ndarray, np.ndarray): Numpy Arraya X and y of type np.float32
+            (np.ndarray, np.ndarray): Numpy Arraya X (n,12) and y (n,2) of type np.float32
 
         """
         return self.X, self.y

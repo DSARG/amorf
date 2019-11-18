@@ -1,8 +1,5 @@
 from numpy import mean, sqrt
-import numpy as np
-import torch as t 
-
-# TODO: Hide "tensor_" methods since they are only for internal use
+import torch as torch
 
 
 def average_relative_error(y_test, y_pred):
@@ -29,7 +26,7 @@ def tensor_average_relative_error(y_test, y_pred):
     Returns:
         float: Average Relative Mean Squared Error
     """
-    result = t.sum(t.sum(t.abs(y_test - y_pred) / y_test, dim=0) /
+    result = torch.sum(torch.sum(torch.abs(y_test - y_pred) / y_test, dim=0) /
                  len(y_test)) / len(y_test[0, :])
     return result
 
@@ -59,8 +56,8 @@ def tensor_average_relative_root_mean_squared_error(y_pred, y_test):
     Returns:
         torch.FloatTensor : Average Relative Root Mean Squared Error
     """
-    result = t.sum(t.sqrt(t.sum((y_test - y_pred)**2, dim=0) /
-                          t.sum(((y_test - t.mean(y_test, dim=0))**2), dim=0))) / len(y_pred[0, :])
+    result = torch.sum(torch.sqrt(torch.sum((y_test - y_pred)**2, dim=0) /
+                          torch.sum(((y_test - torch.mean(y_test, dim=0))**2), dim=0))) / len(y_pred[0, :])
     return result
 
 
@@ -74,7 +71,7 @@ def tensor_mean_squared_error(y_pred, y_test):
     Returns:
         torch.FloatTensor: Mean Squared Error
     """
-    result = t.sum(t.sum((y_test - y_pred)**2) /
+    result = torch.sum(torch.sum((y_test - y_pred)**2) /
                    len(y_test))
     return result
 
@@ -104,9 +101,9 @@ def tensor_average_root_mean_square_error(y_pred, y_test):
     Returns:
         torch.FloatTensor: : Average Root Mean Squared Error
     """
-    a = t.sum((y_test - y_pred)**2,dim=0)/ len(y_test)
-    b = t.sqrt(a)
-    result = t.sum(t.sqrt(t.sum((y_test - y_pred)**2,dim=0) /
+    a = torch.sum((y_test - y_pred)**2,dim=0)/ len(y_test)
+    b = torch.sqrt(a)
+    result = torch.sum(torch.sqrt(torch.sum((y_test - y_pred)**2,dim=0) /
                           len(y_test) ))/len(y_test[0])
     return result
 

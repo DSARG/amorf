@@ -7,14 +7,13 @@ import xgboost as xgb
 from sklearn.neural_network import MLPRegressor
 
 # AutoEncoderRegression
-from framework.utils import EarlyStoppingStopping, printMessage
+from framework.utils import EarlyStopping, printMessage
 import torch
 from torch import nn
 import numpy as np
 from sklearn.model_selection import train_test_split
 
 # TODO: Add Data Loaders
-# TODO: Consisten Naming
 
 class SingleTargetMethod:
     """ Performs regression for each target variable separately.
@@ -164,8 +163,8 @@ class AutoEncoderRegression:
         n_targets = len(y_train[0])
         X_train, X_val, y_train, y_val = train_test_split(
             X_train, y_train, test_size=0.1)
-        y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device)
-        y_data_val = torch.tensor(y_val, dtype=torch.float).to(self.Device)
+        y_train_t = torch.tensor(y_train, dtype=torch.float).to(self.Device)
+        y_validate_t = torch.tensor(y_val, dtype=torch.float).to(self.Device)
 
         model = autoencoder(n_targets).to(self.Device)
         best_model, best_score = None, np.inf
@@ -178,7 +177,7 @@ class AutoEncoderRegression:
         epochs = 0
 
         y_data_batched = self.__split_training_set_to_batches(
-            y_data, self.batch_size)
+            y_train_t, self.batch_size)
 
         while(stop is False):
             model.train()
@@ -192,31 +191,30 @@ class AutoEncoderRegression:
                 optimizer.step()
             # ===================validate========================
             model.eval()
-            y_pred_val = model(y_data_val)
-            v_loss = criterion(y_pred_val, y_data_val)
-            val_losses.append(v_loss.cpu().detach().numpy())
-            if v_loss < best_score:
-                best_score = v_loss
+            y_pred_validate = model(y_validate_t)
+            validation_loss = criterion(y_pred_validate, y_validate_t)
+            if validation_loss < best_score:
+                best_score = validation_loss
                 torch.save(model.state_dict(), self.path)
-            stop = stopper.stop(v_loss)
+            stop = stopper.stop(validation_loss)
             # ===================log========================
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch {}\nValidation Error: {}\n Train Error:{}'.format(
-                    epochs, loss, v_loss), self.verbosity)
+                    epochs, loss, validation_loss), self.verbosity)
             epochs += 1
             if self.training_limit is not None and self.training_limit >= epochs:
                 stop = True
 
-        y_pred_train = model(y_data)
-        final_train_error = criterion(y_pred_train, y_train)
-        final_validation_error = criterion(y_pred_val, y_data_val)
+        y_pred_train = model(y_train_t)
+        final_train_error = criterion(y_pred_train, y_train_t)
+        final_validation_error = criterion(y_pred_validate, y_validate_t)
         printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
             epochs, final_train_error, final_validation_error), self.verbosity)
 
         self.best_model = autoencoder(n_targets)
         self.best_model.load_state_dict(torch.load(self.path))
         self.best_model.to(self.Device)
-        y_enc_train = self.best_model.encoder(y_data)
+        y_enc_train = self.best_model.encoder(y_train_t)
 
         if self.Device is 'cpu':
             self.regressor.fit(X_train, y_enc_train.detach().numpy().ravel())

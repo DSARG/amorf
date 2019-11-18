@@ -1,22 +1,17 @@
 import traceback
 from abc import ABC, abstractmethod
 
-import numpy as np
+from numpy import mean
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from numpy import mean
 from sklearn.model_selection import train_test_split
 
-import framework.metrics as er
-from framework.utils import EarlyStopping as early
-from framework.utils import printMessage
+from framework.metrics import tensor_average_relative_root_mean_squared_error
+from framework.utils import EarlyStopping, printMessage
 
 # TODO: Add Data Loaders
-# TODO: Consisten Naming
-# TODO: clear Imports
-
 
 class NeuralNetRegressor:
     """Regressor that uses PyTorch models to predict multiple targets
@@ -30,7 +25,7 @@ class NeuralNetRegressor:
         learning_rate (float): learning rate for optimizer
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
         patience (int): Stop training after p continous incrementations
-        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
+        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
         verbosity (int): 0 to only print errors, 1 (default) to print status information
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
@@ -49,7 +44,7 @@ class NeuralNetRegressor:
         else:
             self.model = None
 
-        self.loss_fn = er.tensor_average_relative_root_mean_squared_error  # nn.MSELoss()
+        self.loss_fn = tensor_average_relative_root_mean_squared_error  # nn.MSELoss()
         self.patience = patience
         self.learning_rate = learning_rate
         self.verbosity = verbosity
@@ -87,7 +82,7 @@ class NeuralNetRegressor:
             self.model.parameters(), self.learning_rate)
         self.model.train()
 
-        stopper = early(self.patience)
+        stopper = EarlyStopping(self.patience)
         stop = False
         epochs = 0
 
@@ -108,9 +103,9 @@ class NeuralNetRegressor:
 
             if epochs % self.print_after_epochs == 0:
                 y_pred_train = self.model(X_train_t)
-                validation_error = er.tensor_average_relative_root_mean_squared_error(
+                validation_error = tensor_average_relative_root_mean_squared_error(
                     y_pred_val, y_validate_t)
-                train_error = er.tensor_average_relative_root_mean_squared_error(
+                train_error = tensor_average_relative_root_mean_squared_error(
                     y_pred_train, y_train_t)
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
                     epochs, validation_error, train_error), self.verbosity)
@@ -120,9 +115,9 @@ class NeuralNetRegressor:
                 stop = True
 
         y_pred_train = self.model(X_train_t)
-        final_train_error = er.tensor_average_relative_root_mean_squared_error(
+        final_train_error = tensor_average_relative_root_mean_squared_error(
             y_pred_train, y_train_t)
-        final_validation_error = er.tensor_average_relative_root_mean_squared_error(
+        final_validation_error = tensor_average_relative_root_mean_squared_error(
             y_pred_val, y_validate_t)
 
         printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(

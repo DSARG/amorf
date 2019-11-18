@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 
 import pyro
 from pyro.distributions import Normal, Uniform, Delta
@@ -14,8 +13,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from framework.utils import EarlyStopping, printMessage
 # TODO: Data Loaders
-# TODO: Consisten Naming
-# TODO: clear Imports
 
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
@@ -53,15 +50,15 @@ class BayesianNeuralNetworkRegression:
         Returns:
             NeuralNetRegressor: fitted NeuralNetRegressor
         """
-        X_train, X_val, y_train, y_val = train_test_split(
+        X_train, X_validate_t, y_train, y_validate_t = train_test_split(
             X_train, y_train, test_size=0.1)
-        x_data = torch.tensor(X_train, dtype=torch.float).to(self.Device)
-        y_data = torch.tensor(y_train, dtype=torch.float).to(self.Device)
-        X_val = torch.tensor(X_val, dtype=torch.float).to(self.Device)
-        y_val = torch.tensor(y_val, dtype=torch.float).to(self.Device)
+        X_train_t = torch.tensor(X_train, dtype=torch.float).to(self.Device)
+        y_train_t = torch.tensor(y_train, dtype=torch.float).to(self.Device)
+        X_validate_t = torch.tensor(X_validate_t, dtype=torch.float).to(self.Device)
+        y_validate_t = torch.tensor(y_validate_t, dtype=torch.float).to(self.Device)
 
-        n_targets = len(y_data[0])
-        n_features = len(x_data[0])
+        n_targets = len(y_train_t[0])
+        n_features = len(X_train_t[0])
         self.net = NN(n_features, n_targets)
         self.net.to(self.Device)
         self.guide = AutoDiagonalNormal(self.__model)
@@ -69,7 +66,7 @@ class BayesianNeuralNetworkRegression:
         self.svi = SVI(self.__model, self.guide, self.optim, loss=Trace_ELBO())
 
         X_train_t_batched, y_train_t_batched = self.__split_training_set_to_batches(
-            x_data, y_data, self.batch_size)
+            X_train_t, y_train_t, self.batch_size)
         pyro.clear_param_store()
         losses = []
         stopper = EarlyStopping(self.patience)
@@ -81,8 +78,8 @@ class BayesianNeuralNetworkRegression:
                 loss_batch = self.svi.step(batch_X, batch_y)
                 losses.append(loss_batch)
 
-            validation_error = self.svi.evaluate_loss(X_val, y_val)
-            train_error = self.svi.evaluate_loss(x_data, y_data)
+            validation_error = self.svi.evaluate_loss(X_validate_t, y_validate_t)
+            train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
             stop = stopper.stop(validation_error)
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
@@ -93,8 +90,8 @@ class BayesianNeuralNetworkRegression:
             if self.training_limit is not None and self.training_limit >= epochs:
                 stop = True
 
-        final_train_error = self.svi.evaluate_loss(x_data, y_data)
-        final_validation_error = self.svi.evaluate_loss(X_val, y_val)
+        final_train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
+        final_validation_error = self.svi.evaluate_loss(X_validate_t, y_validate_t)
         printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
             epochs, final_train_error, final_validation_error), self.verbosity)
         return self
