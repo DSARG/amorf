@@ -18,7 +18,6 @@ class TestBayesianRegression(unittest.TestCase):
 
         fitted = model.fit(self.X_train, self.y_train)
         self.assertEqual(fitted.patience, 5) 
-        self.assertEqual(fitted.Device,'cpu') 
         self.assertEqual(fitted.batch_size,2000)  
         self.assertEqual(fitted.training_limit, 1)
         self.assertEqual(fitted.learning_rate,1e-5 )
