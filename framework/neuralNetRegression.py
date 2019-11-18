@@ -5,7 +5,8 @@ from numpy import mean
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
+import torch.optim as optim 
+from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 
 from framework.metrics import tensor_average_relative_root_mean_squared_error
@@ -25,7 +26,7 @@ class NeuralNetRegressor:
         learning_rate (float): learning rate for optimizer
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
         patience (int): Stop training after p continous incrementations
-        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
+        training_limit (int): Default 1 - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
         verbosity (int): 0 to only print errors, 1 (default) to print status information
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
@@ -78,6 +79,8 @@ class NeuralNetRegressor:
         X_validate_t, y_validate_t = self.model.convert_train_set_to_tensor(
             X_validate, y_validate, self.Device)
 
+        self.batch_size = len(X_train_t) if self.batch_size is None else self.batch_size
+        train_dataloader =  DataLoader(TensorDataset(X_train_t,y_train_t),batch_size=self.batch_size)  
         self.optimizer = optim.Adam(
             self.model.parameters(), self.learning_rate)
         self.model.train()
@@ -86,12 +89,11 @@ class NeuralNetRegressor:
         stop = False
         epochs = 0
 
-        X_train_t_batched, y_train_t_batched = self.__split_training_set_to_batches(
-            X_train_t, y_train_t, self.batch_size)
-
         while(stop is False):
             # train
-            for batch_X, batch_y in zip(X_train_t_batched, y_train_t_batched):
+            for batch in train_dataloader: 
+                batch_X = batch[0]
+                batch_y = batch[1]
                 self.optimizer.zero_grad()
                 y_pred_train = self.model(batch_X)
                 loss = self.loss_fn(y_pred_train, batch_y)
@@ -124,12 +126,6 @@ class NeuralNetRegressor:
             epochs, final_train_error, final_validation_error), self.verbosity)
 
         return self
-
-    def __split_training_set_to_batches(self, X_train_t, y_train_t, batch_size):
-        if batch_size is None:
-            return torch.split(X_train_t, len(X_train_t)), torch.split(y_train_t, len(X_train_t))
-        else:
-            return torch.split(X_train_t, batch_size), torch.split(y_train_t, batch_size)
 
     def predict(self, X_test):
         """Predicts the target variables for the given test set
