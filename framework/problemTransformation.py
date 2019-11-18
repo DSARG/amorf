@@ -12,8 +12,10 @@ import torch
 from torch import nn
 import numpy as np
 from sklearn.model_selection import train_test_split
+from torch.utils.data import TensorDataset, DataLoader
 
 # TODO: Add Data Loaders
+
 
 class SingleTargetMethod:
     """ Performs regression for each target variable separately.
@@ -102,6 +104,7 @@ class AutoEncoderRegression:
         custom_regressor (object): Custom Estimator that must implement 'fit()'
                             and 'predict()' function.
         batch_size (int): Default None - otherwise training set is split into batches of given size
+        shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
         learning_rate (float): learning rate for optimizer
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
         patience (int): Stop training after p continous incrementations
@@ -110,12 +113,13 @@ class AutoEncoderRegression:
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, regressor='gradientboost', custom_regressor=None, batch_size=None, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
+    def __init__(self, regressor='gradientboost', custom_regressor=None, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
         self.learning_rate = learning_rate
         self.path = ".autoncoder_bestmodel_validation"
         self.print_after_epochs = print_after_epochs
         self.patience = patience
         self.batch_size = batch_size
+        self.shuffle = shuffle
         self.training_limit = training_limit
         self.verbosity = verbosity
         self.Device = 'cpu'
@@ -175,13 +179,15 @@ class AutoEncoderRegression:
         stopper = EarlyStopping(self.patience)
         stop = False
         epochs = 0
-
-        y_data_batched = self.__split_training_set_to_batches(
-            y_train_t, self.batch_size)
+        self.batch_size = len(
+            y_train_t) if self.batch_size is None else self.batch_size
+        train_dataloader = DataLoader(TensorDataset(
+            y_train_t), batch_size=self.batch_size, shuffle=self.shuffle)
 
         while(stop is False):
             model.train()
-            for batch_y in y_data_batched:
+            for batch in train_dataloader:
+                batch_y = batch[0]
                 # ===================forward=====================
                 output = model(batch_y)
                 loss = criterion(output, batch_y)

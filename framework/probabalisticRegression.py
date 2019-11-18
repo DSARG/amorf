@@ -12,6 +12,7 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 from framework.utils import EarlyStopping, printMessage
+from torch.utils.data import TensorDataset, DataLoader
 # TODO: Data Loaders
 
 class BayesianNeuralNetworkRegression:
@@ -20,6 +21,7 @@ class BayesianNeuralNetworkRegression:
     Uses Pyros Elbo Loss internally
     Args:
         batch_size (int): Default None - otherwise training set is split into batches of given size
+        shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
         learning_rate (float): learning rate for optimizer
         use_gpu (bool):  Flag that allows usage of cuda cores for calculations
         patience (int): Stop training after p continous incrementations
@@ -28,9 +30,10 @@ class BayesianNeuralNetworkRegression:
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, batch_size=None, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
+    def __init__(self, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
         self.patience = patience
         self.batch_size = batch_size
+        self.shuffle = shuffle
         self.learning_rate = learning_rate
         self.training_limit = training_limit
         self.print_after_epochs = print_after_epochs
@@ -65,8 +68,10 @@ class BayesianNeuralNetworkRegression:
         self.optim = Adam({"lr": self.learning_rate})
         self.svi = SVI(self.__model, self.guide, self.optim, loss=Trace_ELBO())
 
-        X_train_t_batched, y_train_t_batched = self.__split_training_set_to_batches(
-            X_train_t, y_train_t, self.batch_size)
+        self.batch_size = len(
+            X_train_t) if self.batch_size is None else self.batch_size
+        train_dataloader = DataLoader(TensorDataset(
+            X_train_t, y_train_t), batch_size=self.batch_size, shuffle=self.shuffle)
         pyro.clear_param_store()
         losses = []
         stopper = EarlyStopping(self.patience)
@@ -74,7 +79,9 @@ class BayesianNeuralNetworkRegression:
         epochs = 0
         while(stop is False):
             # calculate the loss and take a gradient step
-            for batch_X, batch_y in zip(X_train_t_batched, y_train_t_batched):
+            for batch in train_dataloader:
+                batch_X = batch[0]
+                batch_y = batch[1]
                 loss_batch = self.svi.step(batch_X, batch_y)
                 losses.append(loss_batch)
 

@@ -5,7 +5,7 @@ from numpy import mean
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim 
+import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 
@@ -13,6 +13,7 @@ from framework.metrics import tensor_average_relative_root_mean_squared_error
 from framework.utils import EarlyStopping, printMessage
 
 # TODO: Add Data Loaders
+
 
 class NeuralNetRegressor:
     """Regressor that uses PyTorch models to predict multiple targets
@@ -23,6 +24,7 @@ class NeuralNetRegressor:
     Args:
         model (pytorch.NN.Module): PyTorch Model to use
         batch_size (int): Default None - otherwise training set is split into batches of given size
+        shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
         learning_rate (float): learning rate for optimizer
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
         patience (int): Stop training after p continous incrementations
@@ -31,7 +33,7 @@ class NeuralNetRegressor:
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, model=None, batch_size=None, learning_rate=0.01, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=10):
+    def __init__(self, model=None, batch_size=None, shuffle=False, learning_rate=0.01, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=10):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -51,6 +53,7 @@ class NeuralNetRegressor:
         self.verbosity = verbosity
         self.print_after_epochs = print_after_epochs
         self.batch_size = batch_size
+        self.shuffle = shuffle
         if isinstance(training_limit, int):
             self.training_limit = training_limit
         else:
@@ -79,8 +82,10 @@ class NeuralNetRegressor:
         X_validate_t, y_validate_t = self.model.convert_train_set_to_tensor(
             X_validate, y_validate, self.Device)
 
-        self.batch_size = len(X_train_t) if self.batch_size is None else self.batch_size
-        train_dataloader =  DataLoader(TensorDataset(X_train_t,y_train_t),batch_size=self.batch_size)  
+        self.batch_size = len(
+            X_train_t) if self.batch_size is None else self.batch_size
+        train_dataloader = DataLoader(TensorDataset(
+            X_train_t, y_train_t), batch_size=self.batch_size, shuffle=self.shuffle)
         self.optimizer = optim.Adam(
             self.model.parameters(), self.learning_rate)
         self.model.train()
@@ -91,7 +96,7 @@ class NeuralNetRegressor:
 
         while(stop is False):
             # train
-            for batch in train_dataloader: 
+            for batch in train_dataloader:
                 batch_X = batch[0]
                 batch_y = batch[1]
                 self.optimizer.zero_grad()
