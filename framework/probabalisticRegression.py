@@ -13,7 +13,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from framework.utils import EarlyStopping, printMessage
 from torch.utils.data import TensorDataset, DataLoader
-# TODO: Data Loaders
 
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
@@ -103,6 +102,7 @@ class BayesianNeuralNetworkRegression:
             epochs, final_train_error, final_validation_error), self.verbosity)
         return self
 
+    # FIXME: remove y_test 
     def predict(self, X_test, y_test, num_samples=100):
         """Predicts the target variables for the given test set
 
