@@ -9,7 +9,7 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 
-from framework.metrics import tensor_average_relative_root_mean_squared_error
+from framework.metrics import average_relative_root_mean_squared_error
 from framework.utils import EarlyStopping, printMessage
 
 
@@ -45,17 +45,15 @@ class NeuralNetRegressor:
         else:
             self.model = None
 
-        self.loss_fn = tensor_average_relative_root_mean_squared_error  # nn.MSELoss()
+        self.loss_fn = average_relative_root_mean_squared_error  # nn.MSELoss()
         self.patience = patience
         self.learning_rate = learning_rate
         self.verbosity = verbosity
         self.print_after_epochs = print_after_epochs
         self.batch_size = batch_size
         self.shuffle = shuffle
-        if isinstance(training_limit, int):
-            self.training_limit = training_limit
-        else:
-            self.training_limit = None
+        self.training_limit = training_limit if isinstance(
+            training_limit, int) else None
         if training_limit is None and patience is None:
             raise ValueError('Either training_limit or patience must be set')
 
@@ -111,9 +109,9 @@ class NeuralNetRegressor:
 
             if epochs % self.print_after_epochs == 0:
                 y_pred_train = self.model(X_train_t)
-                validation_error = tensor_average_relative_root_mean_squared_error(
+                validation_error = average_relative_root_mean_squared_error(
                     y_pred_val, y_validate_t)
-                train_error = tensor_average_relative_root_mean_squared_error(
+                train_error = average_relative_root_mean_squared_error(
                     y_pred_train, y_train_t)
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
                     epochs, validation_error, train_error), self.verbosity)
@@ -125,9 +123,9 @@ class NeuralNetRegressor:
                 stop = True
 
         y_pred_train = self.model(X_train_t)
-        final_train_error = tensor_average_relative_root_mean_squared_error(
+        final_train_error = average_relative_root_mean_squared_error(
             y_pred_train, y_train_t)
-        final_validation_error = tensor_average_relative_root_mean_squared_error(
+        final_validation_error = average_relative_root_mean_squared_error(
             y_pred_val, y_validate_t)
 
         printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(

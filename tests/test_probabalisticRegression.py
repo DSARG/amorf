@@ -25,7 +25,7 @@ class TestBayesianRegression(unittest.TestCase):
         self.assertEqual(stds.shape, (16,2)) 
         self.assertEqual(means.shape,(16,2))
 
-    def test_fit_and_predict_with_gpu(self):
+    def test_fit_and_predict_with_GPU(self):
         model = BayesianNeuralNetworkRegression(
             patience=5, use_gpu=True, training_limit=1,learning_rate=1e-5, batch_size=2000)
 

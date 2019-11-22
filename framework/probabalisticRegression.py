@@ -40,7 +40,10 @@ class BayesianNeuralNetworkRegression:
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
-            self.Device = "cuda:0"
+            self.Device = "cuda:0" 
+        
+        if training_limit is None and patience is None:
+            raise ValueError('Either training_limit or patience must be set')
 
     def fit(self, X_train, y_train):
         """Fits the model to the training data set
@@ -73,7 +76,8 @@ class BayesianNeuralNetworkRegression:
             X_train_t, y_train_t), batch_size=self.batch_size, shuffle=self.shuffle)
         pyro.clear_param_store()
         losses = []
-        stopper = EarlyStopping(self.patience)
+        if self.patience is not None:
+            stopper = EarlyStopping(self.patience)
         stop = False
         epochs = 0
         while(stop is False):
@@ -86,7 +90,8 @@ class BayesianNeuralNetworkRegression:
 
             validation_error = self.svi.evaluate_loss(X_validate_t, y_validate_t)
             train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
-            stop = stopper.stop(validation_error)
+            if self.patience is not None:
+                stop = stopper.stop(validation_error)
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
                     epochs, validation_error, train_error), self.verbosity)
