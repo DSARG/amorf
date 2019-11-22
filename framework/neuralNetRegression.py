@@ -118,7 +118,7 @@ class NeuralNetRegressor:
                     epochs, validation_error, train_error), self.verbosity)
             stop = stopper.stop(validation_loss)
             epochs += 1
-            if self.training_limit is not None and self.training_limit >= epochs:
+            if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
         y_pred_train = self.model(X_train_t)
