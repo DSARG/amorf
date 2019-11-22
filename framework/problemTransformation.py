@@ -208,7 +208,7 @@ class AutoEncoderRegression:
                 printMessage('Epoch {}\nValidation Error: {}\n Train Error:{}'.format(
                     epochs, loss, validation_loss), self.verbosity)
             epochs += 1
-            if self.training_limit is not None and self.training_limit >= epochs:
+            if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
         y_pred_train = model(y_train_t)

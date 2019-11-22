@@ -93,7 +93,7 @@ class BayesianNeuralNetworkRegression:
 
             epochs += 1
 
-            if self.training_limit is not None and self.training_limit >= epochs:
+            if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
         final_train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
