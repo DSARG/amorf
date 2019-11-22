@@ -7,8 +7,8 @@ def average_relative_error(y_test, y_pred):
     """Calculate Average Relative Error
 
     Args:
-        y_test (np.array): array of dimension N x d with actual values
-        y_pred (np.array): array of dimension N x d with predicted values
+        y_test (array-like): np.ndarray or torch.Tensor of dimension N x d with actual values
+        y_pred (array-like): np.ndarray or torch.Tensor of dimension N x d with predicted values
 
     Returns:
         float: Average Relative Mean Squared Error
@@ -26,8 +26,8 @@ def average_relative_root_mean_squared_error(y_pred, y_test):
     """Calculate Average Relative Root Mean Squared Error (aRRMSE)
 
     Args:
-        y_test (np.array): array of dimension N x d with actual values
-        y_pred (np.array): array of dimension N x d with predicted values
+        y_test (array-like): np.ndarray or torch.Tensor of dimension N x d with actual values
+        y_pred (array-like): np.ndarray or torch.Tensor of dimension N x d with predicted values
 
     Returns:
         float : Average Relative Root Mean Squared Error
@@ -45,8 +45,8 @@ def mean_squared_error(y_pred, y_test):
     """Calculate Mean Squared Error (MSE)
 
      Args:
-         y_test (np.array): array of dimension N x d with actual values
-         y_pred (np.ar ray): array of dimension N x d with predicted values
+         y_test (array-like): np.ndarray or torch.Tensor of dimension N x d with actual values
+         y_pred (array-like): np.ndarray or torch.Tensor of dimension N x d with predicted values
 
      Returns:
          float : Mean Squared Error
@@ -64,8 +64,8 @@ def average_root_mean_squared_error(y_pred, y_test):
     """Calculate Average Root Mean Squared Error (aRMSE)
 
      Args:
-         y_test (np.array): array of dimension N x d with actual values
-         y_pred (np.ar ray): array of dimension N x d with predicted values
+         y_test (array-like): np.ndarray or torch.Tensor of dimension N x d with actual values
+         y_pred (array-like): np.ndarray or torch.Tensor of dimension N x d with predicted values
 
     Returns:
         float : Average Root Mean Squared Error
