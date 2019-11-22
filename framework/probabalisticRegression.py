@@ -23,13 +23,13 @@ class BayesianNeuralNetworkRegression:
         shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
         learning_rate (float): learning rate for optimizer
         use_gpu (bool):  Flag that allows usage of cuda cores for calculations
-        patience (int): Stop training after p continous incrementations
-        training_limit (int): Default None - After specified number of epochs training will be terminated, regardless of early stopping
+        patience (int): Default None - Stop training after p continous incrementations
+        training_limit (int): Default 100 - After specified number of epochs training will be terminated, regardless of early stopping
         verbosity (int): 0 to only print errors, 1 (default) to print status information
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=500):
+    def __init__(self, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=500):
         self.patience = patience
         self.batch_size = batch_size
         self.shuffle = shuffle

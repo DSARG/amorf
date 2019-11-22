@@ -12,8 +12,6 @@ from sklearn.model_selection import train_test_split
 from framework.metrics import tensor_average_relative_root_mean_squared_error
 from framework.utils import EarlyStopping, printMessage
 
-# TODO: Add Data Loaders
-
 
 class NeuralNetRegressor:
     """Regressor that uses PyTorch models to predict multiple targets
@@ -27,13 +25,13 @@ class NeuralNetRegressor:
         shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
         learning_rate (float): learning rate for optimizer
         use_gpu (bool): Flag that allows usage of cuda cores for calculations
-        patience (int): Stop training after p continous incrementations
-        training_limit (int): Default 1 - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
+        patience (int): Default 0 - Stop training after p continous incrementations (stops at training limit if it is not none)
+        training_limit (int): Default 100 - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
         verbosity (int): 0 to only print errors, 1 (default) to print status information
         print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
     """
 
-    def __init__(self, model=None, batch_size=None, shuffle=False, learning_rate=0.01, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=10):
+    def __init__(self, model=None, batch_size=None, shuffle=False, learning_rate=0.01, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=10):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -58,6 +56,8 @@ class NeuralNetRegressor:
             self.training_limit = training_limit
         else:
             self.training_limit = None
+        if training_limit is None and patience is None:
+            raise ValueError('Either training_limit or patience must be set')
 
     def fit(self, X_train, y_train):
         """Fits the model to the training data set
@@ -90,7 +90,8 @@ class NeuralNetRegressor:
             self.model.parameters(), self.learning_rate)
         self.model.train()
 
-        stopper = EarlyStopping(self.patience)
+        if self.patience is not None:
+            stopper = EarlyStopping(self.patience)
         stop = False
         epochs = 0
 
@@ -116,7 +117,9 @@ class NeuralNetRegressor:
                     y_pred_train, y_train_t)
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
                     epochs, validation_error, train_error), self.verbosity)
-            stop = stopper.stop(validation_loss)
+
+            if self.patience is not None:
+                stop = stopper.stop(validation_loss)
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
