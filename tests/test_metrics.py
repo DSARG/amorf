@@ -6,6 +6,19 @@ import torch as torch
 
 class TestError(unittest.TestCase):
 
+    def test_average_correlation_coefficient(self):
+        labels = np.array([[2, -6], [3, 5], [4, 4], [5, 3], [-6, 2]])
+        predicted_labels = np.array([[3, 7], [2, -5], [4, 4], [-5, 2], [7, 3]])
+        self.assertAlmostEqual(metrics.average_correlation_coefficient(
+            labels, predicted_labels), -0.725679, places=5)  
+    def test_tensor_average_correlation_coefficient(self):
+        labels = torch.from_numpy(
+            np.array([[2, -6], [3, 5], [4, 4], [5, 3], [-6, 2]])).float()
+        predicted_labels = torch.from_numpy(
+            np.array([[3, 7], [2, -5], [4, 4], [-5, 2], [7, 3]])).float()
+        self.assertAlmostEqual(metrics.average_correlation_coefficient(
+            labels, predicted_labels).item(), -0.725679, places=5)
+
     def test_average_relative_error(self):
         labels = np.array([[2, -6], [3, 5], [4, 4], [5, 3], [-6, 2]])
         predicted_labels = np.array([[3, 7], [2, -5], [4, 4], [-5, 2], [7, 3]])
