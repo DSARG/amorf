@@ -99,18 +99,18 @@ class AutoEncoderRegression:
         ValueError: If selector is not a valid value
 
     Args:
-        regressor (string): Can be one of the following linear', 'kneighbors',
-                            'adaboost', 'gradientboost', 'mlp', 'svr', 'xgb'
-        custom_regressor (object): Custom Estimator that must implement 'fit()'
-                            and 'predict()' function.
-        batch_size (int): Default None - otherwise training set is split into batches of given size
-        shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
-        learning_rate (float): learning rate for optimizer
-        use_gpu (bool): Flag that allows usage of cuda cores for calculations
-        patience (int): Default None - Stop training after p continous incrementations
-        training_limit (int): Default 100 - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
-        verbosity (int): 0 to only print errors, 1 (default) to print status information
-        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        regressor (string,optional): Can be one of the following linear', 'kneighbors',
+                            'adaboost', 'gradientboost', 'mlp', 'svr', 'xgb'. Default: 'gradientboost'
+        custom_regressor (object,optional): Custom Estimator that must implement 'fit()'
+                            and 'predict()' function. Default: None
+        batch_size (int,optional): Otherwise training set is split into batches of given size. Default: None
+        shuffle (bool,optional) Set to True to have the data reshuffled at every epoch. Default: False
+        learning_rate (float,optional): Learning rate for optimizer. Default: 1e-3
+        use_gpu (bool,optional): Flag that allows usage of cuda cores for calculations. Default: False
+        patience (int,optional): Stop training after p continous incrementations. Default: None
+        training_limit (int,optional): After specified number of epochs training will be terminated, regardless of EarlyStopping stopping. Default: 100
+        verbosity (int,optional): 0 to only print errors, 1 (default) to print status information. Default: 1
+        print_after_epochs (int,optional): Specifies after how many epochs training and validation error will be printed to command line. Default: 500
     """
 
     def __init__(self, regressor='gradientboost', custom_regressor=None, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=500):

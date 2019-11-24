@@ -19,14 +19,14 @@ class BayesianNeuralNetworkRegression:
 
     Uses Pyros Elbo Loss internally
     Args:
-        batch_size (int): Default None - otherwise training set is split into batches of given size
-        shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
-        learning_rate (float): learning rate for optimizer
-        use_gpu (bool):  Flag that allows usage of cuda cores for calculations
-        patience (int): Default None - Stop training after p continous incrementations
-        training_limit (int): Default 100 - After specified number of epochs training will be terminated, regardless of early stopping
-        verbosity (int): 0 to only print errors, 1 (default) to print status information
-        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        batch_size (int,optional): Otherwise training set is split into batches of given size. Default: None
+        shuffle (bool,optional): Set to True to have the data reshuffled at every epoch. Default: False
+        learning_rate (float,optional): Learning rate for optimizer. Default: 1e-3
+        use_gpu (bool,optional):  Flag that allows usage of cuda cores for calculations. Default: False
+        patience (int,optional): Stop training after p continous incrementations. Default: None
+        training_limit (int,optional): After specified number of epochs training will be terminated, regardless of early stopping. Default: 100
+        verbosity (int,optional): 0 to only print errors, 1 (default) to print status information. Default: 1
+        print_after_epochs (int,optional): Specifies after how many epochs training and validation error will be printed to command line. Default: 500
     """
 
     def __init__(self, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=500):
@@ -167,13 +167,6 @@ class BayesianNeuralNetworkRegression:
         self.optim.load(opt_path)
         self.guide = AutoDiagonalNormal(self.__model)
         self.svi = SVI(self.__model, self.guide, self.optim, loss=Trace_ELBO())
-
-    # TODO: Extract to utils
-    def __split_training_set_to_batches(self, X_train_t, y_train_t, batch_size):
-        if batch_size is None:
-            return torch.split(X_train_t, len(X_train_t)), torch.split(y_train_t, len(X_train_t))
-        else:
-            return torch.split(X_train_t, batch_size), torch.split(y_train_t, batch_size)
 
     def __model(self, x_data, y_data):
         fc1w_prior = Normal(loc=torch.zeros_like(
