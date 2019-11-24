@@ -25,19 +25,6 @@ class EDM():
         """
         return self.X, self.y
 
-    def get_pytorch_dataloader(self):
-        """Retrieve X and Y as PyTorch dataLoaders
-
-        Returns dataloaders with two arrays, X and y
-
-        Args:
-
-        Returns:
-            (np.ndarray, np.ndarray): Two PyTorch dataloaders X and y
-
-        """
-        raise NotImplementedError
-
 
 class RiverFlow1():
     def __init__(self):
@@ -65,19 +52,6 @@ class RiverFlow1():
         """
         return self.X, self.y
 
-    def get_pytorch_dataloader(self):
-        """Retrieve X and Y as PyTorch dataLoaders
-
-        Returns dataloaders with two arrays, X and y
-
-        Args:
-
-        Returns:
-            (np.ndarray, np.ndarray): Two PyTorch dataloaders X and y
-
-        """
-        raise NotImplementedError
-
 
 class WaterQuality():
     def __init__(self):
@@ -100,24 +74,11 @@ class WaterQuality():
         """
         return self.X, self.y
 
-    def get_pytorch_dataloader(self):
-        """Retrieve X and Y as PyTorch dataLoaders
-
-        Returns dataloaders with two arrays, X and y
-
-        Args:
-
-        Returns:
-            (np.ndarray, np.ndarray): Two PyTorch dataloaders X and y
-
-        """
-        raise NotImplementedError
-
 
 class TransparentConductors():
     def __init__(self):
         data = np.loadtxt('data/transparentConductors.csv',
-                             delimiter=",", skiprows=1)
+                          delimiter=",", skiprows=1)
         self.X = data[:, 0:12].astype(np.float32)
         self.y = data[:, 12:14].astype(np.float32)
 
@@ -133,16 +94,3 @@ class TransparentConductors():
 
         """
         return self.X, self.y
-
-    def get_pytorch_dataloader(self):
-        """Retrieve X and Y as PyTorch dataLoaders
-
-        Returns dataloaders with two arrays, X and y
-
-        Args:
-
-        Returns:
-            (np.ndarray, np.ndarray): Two PyTorch dataloaders X and y
-
-        """
-        return NotImplementedError
