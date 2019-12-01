@@ -14,6 +14,10 @@ from sklearn.model_selection import train_test_split
 from framework.utils import EarlyStopping, printMessage
 from torch.utils.data import TensorDataset, DataLoader
 
+from gpar import GPARRegressor
+import sklearn.gaussian_process as gp
+
+
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
 
@@ -40,8 +44,8 @@ class BayesianNeuralNetworkRegression:
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
-            self.Device = "cuda:0" 
-        
+            self.Device = "cuda:0"
+
         if training_limit is None and patience is None:
             raise ValueError('Either training_limit or patience must be set')
 
@@ -59,8 +63,10 @@ class BayesianNeuralNetworkRegression:
             X_train, y_train, test_size=0.1)
         X_train_t = torch.tensor(X_train, dtype=torch.float).to(self.Device)
         y_train_t = torch.tensor(y_train, dtype=torch.float).to(self.Device)
-        X_validate_t = torch.tensor(X_validate_t, dtype=torch.float).to(self.Device)
-        y_validate_t = torch.tensor(y_validate_t, dtype=torch.float).to(self.Device)
+        X_validate_t = torch.tensor(
+            X_validate_t, dtype=torch.float).to(self.Device)
+        y_validate_t = torch.tensor(
+            y_validate_t, dtype=torch.float).to(self.Device)
 
         n_targets = len(y_train_t[0])
         n_features = len(X_train_t[0])
@@ -88,7 +94,8 @@ class BayesianNeuralNetworkRegression:
                 loss_batch = self.svi.step(batch_X, batch_y)
                 losses.append(loss_batch)
 
-            validation_error = self.svi.evaluate_loss(X_validate_t, y_validate_t)
+            validation_error = self.svi.evaluate_loss(
+                X_validate_t, y_validate_t)
             train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
             if self.patience is not None:
                 stop = stopper.stop(validation_error)
@@ -102,12 +109,13 @@ class BayesianNeuralNetworkRegression:
                 stop = True
 
         final_train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
-        final_validation_error = self.svi.evaluate_loss(X_validate_t, y_validate_t)
+        final_validation_error = self.svi.evaluate_loss(
+            X_validate_t, y_validate_t)
         printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
             epochs, final_train_error, final_validation_error), self.verbosity)
         return self
 
-    # FIXME: remove y_test 
+    # FIXME: remove y_test
     def predict(self, X_test, y_test, num_samples=100):
         """Predicts the target variables for the given test set
 
@@ -220,3 +228,160 @@ class NN(nn.Module):
         output = self.dropout(output)
         output = self.out(output)
         return output
+
+# https://github.com/wesselb/gpar
+
+
+class GaussianProcessAutoregressiveRegression:
+    """[summary]
+    """
+
+    def __init__(self):
+        super().__init__()
+        raise NotImplementedError
+
+    def fit(self, X_train, y_train):
+        raise NotImplementedError
+
+    def predict(self, X_test):
+        raise NotImplementedError
+
+
+class GaussianProcessRegression:
+    """Wrapper around sklearns GaussianProcessRegressor (sklearn.gaussian_process.GaussienProcessRegressor) 
+    (from sklearn Documentation https://github.com/scikit-learn/scikit-learn/blob/1495f6924/sklearn/gaussian_process/gpr.py)
+
+    The implementation is based on Algorithm 2.1 of Gaussian Processes
+    for Machine Learning (GPML) by Rasmussen and Williams.
+    In addition to standard scikit-learn estimator API,
+    GaussianProcessRegressor:
+       * allows prediction without prior fitting (based on the GP prior)
+       * provides an additional method sample_y(X), which evaluates samples
+         drawn from the GPR (prior or posterior) at given inputs
+       * exposes a method log_marginal_likelihood(theta), which can be used
+         externally for other ways of selecting hyperparameters, e.g., via
+         Markov chain Monte Carlo.
+
+    Args:
+    kernel : kernel object
+        The kernel specifying the covariance function of the GP. If None is
+        passed, the kernel "1.0 * RBF(1.0)" is used as default. Note that
+        the kernel's hyperparameters are optimized during fitting.
+    alpha : float or array-like, optional (default: 1e-10)
+        Value added to the diagonal of the kernel matrix during fitting.
+        Larger values correspond to increased noise level in the observations.
+        This can also prevent a potential numerical issue during fitting, by
+        ensuring that the calculated values form a positive definite matrix.
+        If an array is passed, it must have the same number of entries as the
+        data used for fitting and is used as datapoint-dependent noise level.
+        Note that this is equivalent to adding a WhiteKernel with c=alpha.
+        Allowing to specify the noise level directly as a parameter is mainly
+        for convenience and for consistency with Ridge.
+    optimizer : string or callable, optional (default: "fmin_l_bfgs_b")
+        Can either be one of the internally supported optimizers for optimizing
+        the kernel's parameters, specified by a string, or an externally
+        defined optimizer passed as a callable. If a callable is passed, it
+        must have the signature::
+            def optimizer(obj_func, initial_theta, bounds):
+                # * 'obj_func' is the objective function to be minimized, which
+                #   takes the hyperparameters theta as parameter and an
+                #   optional flag eval_gradient, which determines if the
+                #   gradient is returned additionally to the function value
+                # * 'initial_theta': the initial value for theta, which can be
+                #   used by local optimizers
+                # * 'bounds': the bounds on the values of theta
+                ....
+                # Returned are the best found hyperparameters theta and
+                # the corresponding value of the target function.
+                return theta_opt, func_min
+        Per default, the 'fmin_l_bfgs_b' algorithm from scipy.optimize
+        is used. If None is passed, the kernel's parameters are kept fixed.
+        Available internal optimizers are::
+            'fmin_l_bfgs_b'
+    n_restarts_optimizer : int, optional (default: 0)
+        The number of restarts of the optimizer for finding the kernel's
+        parameters which maximize the log-marginal likelihood. The first run
+        of the optimizer is performed from the kernel's initial parameters,
+        the remaining ones (if any) from thetas sampled log-uniform randomly
+        from the space of allowed theta-values. If greater than 0, all bounds
+        must be finite. Note that n_restarts_optimizer == 0 implies that one
+        run is performed.
+    normalize_y : boolean, optional (default: False)
+        Whether the target values y are normalized, i.e., the mean of the
+        observed target values become zero. This parameter should be set to
+        True if the target values' mean is expected to differ considerable from
+        zero. When enabled, the normalization effectively modifies the GP's
+        prior based on the data, which contradicts the likelihood principle;
+        normalization is thus disabled per default.
+    copy_X_train : bool, optional (default: True)
+        If True, a persistent copy of the training data is stored in the
+        object. Otherwise, just a reference to the training data is stored,
+        which might cause predictions to change if the data is modified
+        externally.
+    random_state : int, RandomState instance or None, optional (default: None)
+        The generator used to initialize the centers. If int, random_state is
+        the seed used by the random number generator; If RandomState instance,
+        random_state is the random number generator; If None, the random number
+        generator is the RandomState instance used by `np.random`.
+    """
+
+    def __init__(self, kernel=None, alpha=1e-10,
+                 optimizer="fmin_l_bfgs_b", n_restarts_optimizer=0,
+                 normalize_y=False, copy_X_train=True, random_state=None):
+        super().__init__()
+        self.alpha = alpha
+        self.optimizer = optimizer
+        self.n_restarts_optimizer = n_restarts_optimizer
+        self.normalize_y = normalize_y
+        self.copy_X_train = copy_X_train
+        self.random_state = random_state
+        # TODO: Either replace with RBF or find explanation on why this is could be a good kernel
+        self.kernel = gp.kernels.ConstantKernel(
+            1.0, (1e-1, 1e3)) * gp.kernels.RBF(10.0, (1e-3, 1e3)) if kernel is None else kernel
+        self.model = gp.GaussianProcessRegressor(kernel=kernel, alpha=alpha,
+                                                 optimizer=optimizer, n_restarts_optimizer=n_restarts_optimizer,
+                                                 normalize_y=normalize_y, copy_X_train=copy_X_train, random_state=random_state)
+
+    def fit(self, X_train, y_train):
+        """Fit Gaussian process regression model.
+        (from sklearn Documentation https://github.com/scikit-learn/scikit-learn/blob/1495f6924/sklearn/gaussian_process/gpr.py)
+        Args:
+            X (array-like) shape = (n_samples, n_features)
+            Training data
+            y (array-like) shape = (n_samples, [n_output_dims])
+            Target values
+        Returns
+        -------
+        self : returns an instance of self.
+        """
+        return self.model.fit(X_train, y_train)
+
+    def predict(self, X_test, return_std=False, return_cov=False):
+        """Predict using the Gaussian process regression model 
+        (from sklearn Documentation https://github.com/scikit-learn/scikit-learn/blob/1495f6924/sklearn/gaussian_process/gpr.py)
+
+        We can also predict based on an unfitted model by using the GP prior.
+        In addition to the mean of the predictive distribution, also its
+        standard deviation (return_std=True) or covariance (return_cov=True).
+        Note that at most one of the two can be requested.
+        Args:
+        X : array-like, shape = (n_samples, n_features)
+            Query points where the GP is evaluated
+        return_std : bool, default: False
+            If True, the standard-deviation of the predictive distribution at
+            the query points is returned along with the mean.
+        return_cov : bool, default: False
+            If True, the covariance of the joint predictive distribution at
+            the query points is returned along with the mean
+        Returns:
+        y_mean (array): shape = (n_samples, [n_output_dims])
+            Mean of predictive distribution a query points
+        y_std (array): shape = (n_samples,), optional
+            Standard deviation of predictive distribution at query points.
+            Only returned when return_std is True.
+        y_cov (array): shape = (n_samples, n_samples), optional
+            Covariance of joint predictive distribution a query points.
+            Only returned when return_cov is True.
+        """
+
+        return self.model.predict(X_test, return_std=return_std, return_cov=return_cov)
