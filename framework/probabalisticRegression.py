@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split
 from framework.utils import EarlyStopping, printMessage
 from torch.utils.data import TensorDataset, DataLoader
 
-from gpar import GPARRegressor
+#from gpar import GPARRegressor
 import sklearn.gaussian_process as gp
 
 
