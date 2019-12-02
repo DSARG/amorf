@@ -3,16 +3,17 @@ import framework.neuralNetRegression as nn
 import framework.metrics as metrics
 import numpy as np
 from sklearn.model_selection import KFold
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV 
+from sklearn.metrics import make_scorer
 
 def perform_GridSearch(X, y):
-    #TODO Make Scorer
+    scorer = make_scorer(metrics.mean_squared_error ,greater_is_better=False)
     parameters = {
-        "learning_rate": [0.01, 0.001, 0.1, 0.2, 0.3, 0.5],
-        "patience": [1, 3, 5, 8]
+        "learning_rate": [0.01, 0.001, 0.1],# 0.2, 0.3],
+        "patience": [1, 3]#, 5, 8]
     }
 
-    reg = GridSearchCV(nn.NeuralNetRegressor(), parameters, cv=3, n_jobs=1)
+    reg = GridSearchCV(nn.NeuralNetRegressor(training_limit=10000), parameters, cv=3, scoring=scorer, n_jobs=1) 
 
     return reg.fit(X, y)
 
@@ -20,8 +21,8 @@ edm = ds.EDM().get_numpy()
 rf1 = ds.RiverFlow1().get_numpy()
 wq = ds.WaterQuality().get_numpy()
 transCond = ds.TransparentConductors().get_numpy()
-dataset_names = ['EDM', 'RF1', 'Water Quality', 'Transparent Conductors']
-datasets = [edm, rf1, wq, transCond]
+dataset_names = ['RF1', 'Water Quality', 'Transparent Conductors']
+datasets = [rf1, wq, transCond]
 results_datasets = []
 for dataset in datasets:
     all_results = []
@@ -30,9 +31,10 @@ for dataset in datasets:
     kf = KFold(n_splits=5, random_state=1, shuffle=True)
     selector_results = []
     #nnReg = nn.NeuralNetRegressor(patience=1)
+    nnReg = perform_GridSearch(X, y) 
+    print("######################FINISHED GRID SEARCH ######################")
     for train_index, test_index in kf.split(X):
-        fitted = perform_GridSearch(X[train_index], y[train_index])
-        #fitted = nnReg.fit(X[train_index], y[train_index])
+        fitted = nnReg.fit(X[train_index], y[train_index])
         prediction = fitted.predict(X[test_index])
         result = metrics.average_relative_root_mean_squared_error(
             prediction, y[test_index])
