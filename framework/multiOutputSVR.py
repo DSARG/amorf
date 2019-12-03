@@ -19,7 +19,7 @@ class MLSSVR:
     Args:
         kernel_param1 (float): first Parameter for kernel function
         kernel_param1 (float):  seconde Parameter for kernel function
-        kernel_selector (string): One of 'linear','poly','rbf','erbf','sigmoid'
+        kernel_selector (string,optional): One of 'linear','poly','rbf','erbf','sigmoid'. Default:'linear'
 
     """
 

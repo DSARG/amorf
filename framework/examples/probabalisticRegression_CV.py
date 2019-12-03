@@ -17,8 +17,8 @@ for dataset in datasets:
     y = dataset[1] 
     kf = KFold(n_splits=5, random_state=1, shuffle=True)
     selector_results = [] 
+    BNN = probabalisticRegression.BayesianNeuralNetworkRegression(patience=1,learning_rate=1e-5) 
     for train_index, test_index in kf.split(X): 
-        BNN = probabalisticRegression.BayesianNeuralNetworkRegression(patience=6,learning_rate=1e-5) 
         fitted = BNN.fit( X[train_index], y[train_index])
         prediction, prediction_stds = fitted.predict(X[test_index],y[test_index]) 
         result = metrics.average_relative_root_mean_squared_error(

@@ -2,6 +2,8 @@ import traceback
 from abc import ABC, abstractmethod
 
 from numpy import mean
+import inspect
+from collections import defaultdict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,10 +11,8 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 
-from framework.metrics import tensor_average_relative_root_mean_squared_error
+from framework.metrics import average_relative_root_mean_squared_error
 from framework.utils import EarlyStopping, printMessage
-
-# TODO: Add Data Loaders
 
 
 class NeuralNetRegressor:
@@ -22,18 +22,18 @@ class NeuralNetRegressor:
         ValueError: If given model ist not instance of pytorch.NN.nodule
 
     Args:
-        model (pytorch.NN.Module): PyTorch Model to use
-        batch_size (int): Default None - otherwise training set is split into batches of given size
-        shuffle (bool) – set to True to have the data reshuffled at every epoch (default: False).
-        learning_rate (float): learning rate for optimizer
-        use_gpu (bool): Flag that allows usage of cuda cores for calculations
-        patience (int): Stop training after p continous incrementations
-        training_limit (int): Default 1 - After specified number of epochs training will be terminated, regardless of EarlyStopping stopping
-        verbosity (int): 0 to only print errors, 1 (default) to print status information
-        print_after_epochs (int): Specifies after how many epochs training and validation error will be printed to command line
+        model (pytorch.NN.Module,optional): PyTorch Model to use. Default: None (will use Linear_NN_Model)
+        batch_size (int,optional): Otherwise training set is split into batches of given size. Default: None
+        shuffle (bool,optional) : Set to True to have the data reshuffled at every epoch. Default: False
+        learning_rate (float,optional): learning rate for optimizer. Default: 0.01
+        use_gpu (bool,optional): Flag that allows usage of cuda cores for calculations. Default: False
+        patience (int,optional): Stop training after p continous incrementations (stops at training limit if it is not none). Default: 0
+        training_limit (int,optional): After specified number of epochs training will be terminated, regardless of EarlyStopping stopping. Default: 100 
+        verbosity (int,optional): 0 to only print errors, 1 (default) to print status information. Default: 1
+        print_after_epochs (int,optional): Specifies after how many epochs training and validation error will be printed to command line. Default: 10
     """
 
-    def __init__(self, model=None, batch_size=None, shuffle=False, learning_rate=0.01, use_gpu=False, patience=5, training_limit=None, verbosity=1, print_after_epochs=10):
+    def __init__(self, model=None, batch_size=None, shuffle=False, learning_rate=0.01, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=10):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -47,17 +47,17 @@ class NeuralNetRegressor:
         else:
             self.model = None
 
-        self.loss_fn = tensor_average_relative_root_mean_squared_error  # nn.MSELoss()
+        self.loss_fn = average_relative_root_mean_squared_error  # nn.MSELoss()
         self.patience = patience
         self.learning_rate = learning_rate
         self.verbosity = verbosity
         self.print_after_epochs = print_after_epochs
         self.batch_size = batch_size
         self.shuffle = shuffle
-        if isinstance(training_limit, int):
-            self.training_limit = training_limit
-        else:
-            self.training_limit = None
+        self.training_limit = training_limit if isinstance(
+            training_limit, int) else None
+        if training_limit is None and patience is None:
+            raise ValueError('Either training_limit or patience must be set')
 
     def fit(self, X_train, y_train):
         """Fits the model to the training data set
@@ -82,15 +82,16 @@ class NeuralNetRegressor:
         X_validate_t, y_validate_t = self.model.convert_train_set_to_tensor(
             X_validate, y_validate, self.Device)
 
-        self.batch_size = len(
+        batch_size = len(
             X_train_t) if self.batch_size is None else self.batch_size
         train_dataloader = DataLoader(TensorDataset(
-            X_train_t, y_train_t), batch_size=self.batch_size, shuffle=self.shuffle)
+            X_train_t, y_train_t), batch_size=batch_size, shuffle=self.shuffle)
         self.optimizer = optim.Adam(
             self.model.parameters(), self.learning_rate)
         self.model.train()
 
-        stopper = EarlyStopping(self.patience)
+        if self.patience is not None:
+            stopper = EarlyStopping(self.patience)
         stop = False
         epochs = 0
 
@@ -110,21 +111,23 @@ class NeuralNetRegressor:
 
             if epochs % self.print_after_epochs == 0:
                 y_pred_train = self.model(X_train_t)
-                validation_error = tensor_average_relative_root_mean_squared_error(
+                validation_error = average_relative_root_mean_squared_error(
                     y_pred_val, y_validate_t)
-                train_error = tensor_average_relative_root_mean_squared_error(
+                train_error = average_relative_root_mean_squared_error(
                     y_pred_train, y_train_t)
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
                     epochs, validation_error, train_error), self.verbosity)
-            stop = stopper.stop(validation_loss)
+
+            if self.patience is not None:
+                stop = stopper.stop(validation_loss)
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
         y_pred_train = self.model(X_train_t)
-        final_train_error = tensor_average_relative_root_mean_squared_error(
+        final_train_error = average_relative_root_mean_squared_error(
             y_pred_train, y_train_t)
-        final_validation_error = tensor_average_relative_root_mean_squared_error(
+        final_validation_error = average_relative_root_mean_squared_error(
             y_pred_val, y_validate_t)
 
         printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
@@ -172,6 +175,97 @@ class NeuralNetRegressor:
             self.model = model
         except Exception:
             printMessage(traceback.format_exc(), self.verbosity)
+
+    def score(self, X_test, y_test):
+        """Returns Average Relative Root Mean Squared Error for given test data and targets
+
+        Args:
+            X_test (np.ndarray): Test samples
+            y_test (np.ndarray): True targets
+        """
+        return average_relative_root_mean_squared_error(self.predict(X_test), y_test) 
+    
+    def _get_param_names(cls):
+        """Get parameter names for the estimator"""
+        # fetch the constructor or the original constructor before
+        # deprecation wrapping if any
+        init = getattr(cls.__init__, 'deprecated_original', cls.__init__)
+        if init is object.__init__:
+            # No explicit constructor to introspect
+            return []
+
+        # introspect the constructor arguments to find the model parameters
+        # to represent
+        init_signature = inspect.signature(init)
+        # Consider the constructor parameters excluding 'self'
+        parameters = [p for p in init_signature.parameters.values()
+                      if p.name != 'self' and p.kind != p.VAR_KEYWORD]
+        for p in parameters:
+            if p.kind == p.VAR_POSITIONAL:
+                raise RuntimeError("scikit-learn estimators should always "
+                                   "specify their parameters in the signature"
+                                   " of their __init__ (no varargs)."
+                                   " %s with constructor %s doesn't "
+                                   " follow this convention."
+                                   % (cls, init_signature))
+        # Extract and sort argument names excluding 'self'
+        return sorted([p.name for p in parameters])
+
+    def get_params(self, deep=True):
+        """Get parameters for this estimator.
+        Parameters
+        ----------
+        deep : boolean, optional
+            If True, will return the parameters for this estimator and
+            contained subobjects that are estimators.
+        Returns
+        -------
+        params : mapping of string to any
+            Parameter names mapped to their values.
+        """
+        out = dict()
+        for key in self._get_param_names():
+            value = getattr(self, key, None)
+            if deep and hasattr(value, 'get_params'):
+                deep_items = value.get_params().items()
+                out.update((key + '__' + k, val) for k, val in deep_items)
+            out[key] = value
+        return out 
+    
+    def set_params(self, **params):
+        """Set the parameters of this estimator.
+        The method works on simple estimators as well as on nested objects
+        (such as pipelines). The latter have parameters of the form
+        ``<component>__<parameter>`` so that it's possible to update each
+        component of a nested object.
+        Returns
+        -------
+        self
+        """
+        if not params:
+            # Simple optimization to gain speed (inspect is slow)
+            return self
+        valid_params = self.get_params(deep=True)
+
+        nested_params = defaultdict(dict)  # grouped by prefix
+        for key, value in params.items():
+            key, delim, sub_key = key.partition('__')
+            if key not in valid_params:
+                raise ValueError('Invalid parameter %s for estimator %s. '
+                                 'Check the list of available parameters '
+                                 'with `estimator.get_params().keys()`.' %
+                                 (key, self))
+
+            if delim:
+                nested_params[key][sub_key] = value
+            else:
+                setattr(self, key, value)
+                valid_params[key] = value
+
+        for key, sub_params in nested_params.items():
+            valid_params[key].set_params(**sub_params)
+
+        return self
 
 
 class AbstractNeuralNet(ABC):

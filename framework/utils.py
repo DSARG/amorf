@@ -14,7 +14,10 @@ class EarlyStopping:
         suceedingsHigherValues (int) :Number of continous incrementations of error
     """
 
-    def __init__(self, patience):
+    def __init__(self, patience): 
+        #FIXME: setfirst error to None -> 
+        #TODO: Keep the best model and return after stop 
+        #TODO: keep the best model with the lowest validation error
         self.lastError = 0
         self.patience = patience
         self.succeedingHigherValues = 0

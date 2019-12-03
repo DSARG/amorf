@@ -74,31 +74,6 @@ class TestLinearNeuralNet(unittest.TestCase):
         self.assertTrue(result.dtype is numpy.dtype('float32')
                         or result.dtype is numpy.dtype('float64'))
 
-    def test_batch_functionality(self):
-        model = nnRegressor.Linear_NN_Model(
-            self.input_dim, self.target_dim, 'mean')
-        reg = nnRegressor.NeuralNetRegressor(
-            model=model, patience=1, use_gpu=True)
-
-        X_train_t, y_train_t = reg.model.convert_train_set_to_tensor(
-            self.X_train, self.y_train, 'cpu')
-        self.assertEqual(X_train_t.dtype, torch.float)
-        self.assertEqual(y_train_t.dtype, torch.float)
-        batch_x, batch_y = reg._NeuralNetRegressor__split_training_set_to_batches(
-            X_train_t, y_train_t, 10)
-        self.assertEqual(len(batch_x), 14)
-        self.assertEqual(len(batch_y), 14)
-        self.assertEqual(len(batch_x[0]), 10)
-        self.assertEqual(len(batch_y[0]), 10)
-        batch_x, batch_y = reg._NeuralNetRegressor__split_training_set_to_batches(
-            X_train_t, y_train_t, None)
-        self.assertEqual(len(batch_x), 1)
-        self.assertEqual(len(batch_y), 1)
-        self.assertEqual(batch_x[0].shape[0], 138)
-        self.assertEqual(batch_x[0].shape[1], 16)
-        self.assertEqual(batch_y[0].shape[0], 138)
-        self.assertEqual(batch_y[0].shape[1], 2)
-
     def test_save_load(self):
         model = nnRegressor.Linear_NN_Model(
             self.input_dim, self.target_dim, 'mean')
