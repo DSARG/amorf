@@ -87,6 +87,9 @@ class TestLinearNeuralNet(unittest.TestCase):
         self.assertEquals(newReg.model.fc1.in_features, self.input_dim)
         self.assertEquals(newReg.model.fc3.out_features, self.target_dim)
 
+    # TODO: add test for scoring mehtod
+    def test_score(self): 
+        raise NotImplementedError
 
 class TestConvolutionalNeuralNet(unittest.TestCase):
     def setUp(self):

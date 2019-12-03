@@ -185,6 +185,8 @@ class NeuralNetRegressor:
         """
         return average_relative_root_mean_squared_error(self.predict(X_test), y_test) 
     
+    ### FOLLOWING FUNCTIONS ARE NECESSARY TO PERFORM GRID SEARCH 
+    
     def _get_param_names(cls):
         """Get parameter names for the estimator"""
         # fetch the constructor or the original constructor before

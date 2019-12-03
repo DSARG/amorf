@@ -3,19 +3,23 @@ import framework.neuralNetRegression as nn
 import framework.metrics as metrics
 import numpy as np
 from sklearn.model_selection import KFold
-from sklearn.model_selection import GridSearchCV 
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer
 
+
 def perform_GridSearch(X, y):
-    scorer = make_scorer(metrics.mean_squared_error ,greater_is_better=False)
+    scorer = make_scorer(
+        metrics.average_relative_root_mean_squared_error, greater_is_better=False)
     parameters = {
-        "learning_rate": [0.01, 0.001, 0.1],# 0.2, 0.3],
-        "patience": [1, 3]#, 5, 8]
+        "learning_rate": [0.01],# 0.001, 0.1, 0.2, 0.3],
+        "patience": [1]#, 3, 5, 8]
     }
 
-    reg = GridSearchCV(nn.NeuralNetRegressor(training_limit=10000), parameters, cv=3, scoring=scorer, n_jobs=1) 
+    reg = GridSearchCV(nn.NeuralNetRegressor(
+        training_limit=10000), parameters, cv=3, scoring=scorer, n_jobs=1)
 
     return reg.fit(X, y)
+
 
 edm = ds.EDM().get_numpy()
 rf1 = ds.RiverFlow1().get_numpy()
@@ -31,7 +35,7 @@ for dataset in datasets:
     kf = KFold(n_splits=5, random_state=1, shuffle=True)
     selector_results = []
     #nnReg = nn.NeuralNetRegressor(patience=1)
-    nnReg = perform_GridSearch(X, y) 
+    nnReg = perform_GridSearch(X, y).best_estimator_
     print("######################FINISHED GRID SEARCH ######################")
     for train_index, test_index in kf.split(X):
         fitted = nnReg.fit(X[train_index], y[train_index])
@@ -61,5 +65,3 @@ for dataset in results_datasets:
 
 with open("NeuralNetRegression_Linear_CV.txt", "w") as text_file:
     text_file.write(output)
-
-

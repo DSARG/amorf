@@ -57,3 +57,7 @@ class TestBayesianRegression(unittest.TestCase):
         stds, means = newReg.predict(self.X_test, self.y_test)
         self.assertEqual(stds.shape, (16,2)) 
         self.assertEqual(means.shape,(16,2)) 
+
+    # TODO: add test for scoring mehtod
+    def test_score(self): 
+        raise NotImplementedError
