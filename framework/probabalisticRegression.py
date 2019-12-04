@@ -120,28 +120,20 @@ class BayesianNeuralNetworkRegression:
     # FIXME: remove y_test
     def predict(self, X_test, y_test, num_samples=100):
         """Predicts the target variables for the given test set
-
         Args:
             X_test (np.ndarray): Test set withdescriptive variables
-
         Returns:
             np.ndarray: Predicted target variables
         """
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
         y_data_test = torch.tensor(y_test, dtype=torch.float).to(self.Device)
-
         # get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
-
         def wrapped_model(x_data, y_data):
             pyro.sample("prediction", Delta(self.__model(x_data, y_data)))
-
-        #TODO: why is y_data_test necessary here? Can it be removed?
         posterior = self.svi.run(x_data_test, y_data_test)
-
         trace_pred = TracePredictive(
             wrapped_model, posterior, num_samples)
         post_pred = trace_pred.run(x_data_test, None)
-
         marginal = EmpiricalMarginal(post_pred, ['obs'])._get_samples_and_weights()[
             0].detach().cpu().numpy()
         predictions = torch.from_numpy(marginal[:, 0, :, :]).to(self.Device)
