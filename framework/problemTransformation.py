@@ -14,8 +14,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
 
-# TODO: Add Data Loaders
-
 
 class SingleTargetMethod:
     """ Performs regression for each target variable separately.
