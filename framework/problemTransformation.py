@@ -205,14 +205,16 @@ class AutoEncoderRegression:
                 best_score = validation_loss
                 torch.save(model.state_dict(), self.path)
             if self.patience is not None:
-                stop = stopper.stop(validation_loss)
+                stop = stopper.stop(validation_loss, model) 
+            if stop is True and self.patience > 1 :  
+                self.model = torch.load(stopper.best_model)
             # ===================log========================
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch {}\nValidation Error: {}\n Train Error:{}'.format(
                     epochs, loss, validation_loss), self.verbosity)
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
-                stop = True
+                stop = True 
 
         y_pred_train = model(y_train_t)
         final_train_error = criterion(y_pred_train, y_train_t)

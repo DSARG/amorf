@@ -100,7 +100,9 @@ class BayesianNeuralNetworkRegression:
                 X_validate_t, y_validate_t)
             train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
             if self.patience is not None:
-                stop = stopper.stop(validation_error)
+                stop = stopper.stop(validation_error, model)
+            if stop is True and self.patience > 1 : 
+                self.model = torch.load(stopper.best_model)
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
                     epochs, validation_error, train_error), self.verbosity)

@@ -119,7 +119,9 @@ class NeuralNetRegressor:
                     epochs, validation_error, train_error), self.verbosity)
 
             if self.patience is not None:
-                stop = stopper.stop(validation_loss)
+                stop = stopper.stop(validation_loss, self.model) 
+            if stop is True and self.patience > 1 : 
+                self.model = torch.load(stopper.best_model)
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
