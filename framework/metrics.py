@@ -5,7 +5,7 @@ import torch as torch
 # TODO: add function to check diemsnions
 
 
-def average_correlation_coefficient(y_test, y_pred):
+def average_correlation_coefficient(y_pred, y_test):
     """Calculate Average Correlation Coefficient
 
     Args:
@@ -35,7 +35,7 @@ def average_correlation_coefficient(y_test, y_pred):
             'y_test and y_pred must be both of type numpy.ndarray or torch.Tensor')
 
 
-def average_relative_error(y_test, y_pred):
+def average_relative_error(y_pred, y_test):
     """Calculate Average Relative Error
 
     Args:
@@ -131,7 +131,7 @@ def average_root_mean_squared_error(y_pred, y_test):
             'y_test and y_pred must be both of type numpy.ndarray or torch.Tensor')
 
 
-def __validate_dimensions(y_test, y_pred):
+def __validate_dimensions(y_pred, y_test):
     """Validates dimensions of the two input parameters    
     Args:
         y_test (array-like): np.ndarray or torch.Tensor of dimension N x d with actual values
