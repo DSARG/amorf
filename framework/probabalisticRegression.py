@@ -100,7 +100,7 @@ class BayesianNeuralNetworkRegression:
                 X_validate_t, y_validate_t)
             train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
             if self.patience is not None:
-                stop = stopper.stop(validation_error, model)
+                stop = stopper.stop(validation_error, self.net)
             if stop is True and self.patience > 1 : 
                 self.model = torch.load(stopper.best_model)
             if epochs % self.print_after_epochs == 0:
@@ -120,27 +120,48 @@ class BayesianNeuralNetworkRegression:
         return self
 
     # FIXME: remove y_test
-    def predict(self, X_test, y_test, num_samples=100):
+    def predict(self, X_test, num_samples=100):
         """Predicts the target variables for the given test set
         Args:
             X_test (np.ndarray): Test set withdescriptive variables
         Returns:
             np.ndarray: Predicted target variables
         """
+        from pyro.infer import Predictive
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
-        y_data_test = torch.tensor(y_test, dtype=torch.float).to(self.Device)
-        # get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
-        def wrapped_model(x_data, y_data):
-            pyro.sample("prediction", Delta(self.__model(x_data, y_data)))
-        posterior = self.svi.run(x_data_test, y_data_test)
-        trace_pred = TracePredictive(
-            wrapped_model, posterior, num_samples)
-        post_pred = trace_pred.run(x_data_test, None)
-        marginal = EmpiricalMarginal(post_pred, ['obs'])._get_samples_and_weights()[
-            0].detach().cpu().numpy()
-        predictions = torch.from_numpy(marginal[:, 0, :, :]).to(self.Device)
-        stds, means = torch.std_mean(predictions, 0)
-        return stds.cpu().detach().numpy(), means.cpu().detach().numpy()
+        
+        # # get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
+        # def wrapped_model(x_data, y_data):
+        #     pyro.sample("prediction", Delta(self.__model(x_data, y_data)))
+        # posterior = self.svi.run(x_data_test, y_data_test)
+        # trace_pred = TracePredictive(
+        #     wrapped_model, posterior, num_samples)
+        # post_pred = trace_pred.run(x_data_test, None)
+        # marginal = EmpiricalMarginal(post_pred, ['obs'])._get_samples_and_weights()[
+        #     0].detach().cpu().numpy()
+        # predictions = torch.from_numpy(marginal[:, 0, :, :]).to(self.Device)
+        # stds, means = torch.std_mean(predictions, 0)
+        # return stds.cpu().detach().numpy(), means.cpu().detach().numpy()   
+        predictive = Predictive(self.net, guide=self.guide, num_samples=100,
+                        return_sites=("linear.weight", "obs", "_RETURN")) 
+        
+        samples = predictive(x_data_test)
+        pred_summary = self.__summary(samples) 
+        stds = pred_summary['_RETURN']['std']
+        means = pred_summary['_RETURN']['mean']
+
+        return stds.cpu().detach().numpy(), means.cpu().detach().numpy()  
+    
+    def __summary(self,samples):
+        site_stats = {}
+        for k, v in samples.items():
+            site_stats[k] = {
+                "mean": torch.mean(v, 0),
+                "std": torch.std(v, 0),
+                "5%": v.kthvalue(int(len(v) * 0.05), dim=0)[0],
+                "95%": v.kthvalue(int(len(v) * 0.95), dim=0)[0],
+            }
+        return site_stats
 
     def save(self, path):
         """Save model and store it at given path
@@ -171,7 +192,7 @@ class BayesianNeuralNetworkRegression:
         self.optim = Adam({"lr": self.learning_rate})
         self.optim.load(opt_path)
         self.guide = AutoDiagonalNormal(self.__model)
-        self.svi = SVI(self.__model, self.guide, self.optim, loss=Trace_ELBO())
+        self.svi = SVI(self.net, self.guide, self.optim, loss=Trace_ELBO())
 
     def __model(self, x_data, y_data):
         fc1w_prior = Normal(loc=torch.zeros_like(

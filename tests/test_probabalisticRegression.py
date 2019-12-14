@@ -21,7 +21,7 @@ class TestBayesianRegression(unittest.TestCase):
         self.assertEqual(fitted.batch_size,2000)  
         self.assertEqual(fitted.training_limit, 1)
         self.assertEqual(fitted.learning_rate,1e-5 )
-        stds, means = model.predict(self.X_test, self.y_test)  
+        stds, means = model.predict(self.X_test)  
         self.assertEqual(stds.shape, (16,2)) 
         self.assertEqual(means.shape,(16,2))
 
@@ -37,7 +37,7 @@ class TestBayesianRegression(unittest.TestCase):
         self.assertEqual(fitted.learning_rate,1e-5 )
         self.assertEqual(next(fitted.net.parameters()).is_cuda, True)
         
-        stds, means = model.predict(self.X_test, self.y_test)  
+        stds, means = model.predict(self.X_test)  
         self.assertEqual(stds.shape, (16,2)) 
         self.assertEqual(means.shape,(16,2)) 
 
@@ -54,7 +54,7 @@ class TestBayesianRegression(unittest.TestCase):
         newReg =  BayesianNeuralNetworkRegression(
             patience=5, use_gpu=True, training_limit=1,learning_rate=1e-5, batch_size=2000)
         newReg.load('test_bnn') 
-        stds, means = newReg.predict(self.X_test, self.y_test)
+        stds, means = newReg.predict(self.X_test)
         self.assertEqual(stds.shape, (16,2)) 
         self.assertEqual(means.shape,(16,2)) 
 
