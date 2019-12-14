@@ -155,8 +155,17 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
         newReg = nnRegressor.NeuralNetRegressor() 
         newReg.load('testCNN.ckpt')
         self.assertEquals(newReg.model.input_dim, self.input_dim)
-        self.assertEquals(newReg.model.output_dim, self.target_dim)
+        self.assertEquals(newReg.model.output_dim, self.target_dim) 
+    
+    def test_score(self):
+        input_dim = len(self.X_train[0, :])
+        target_dim = len(self.y_train[0, :])
 
+        model = nnRegressor.Convolutional_NN_Model(input_dim, target_dim)
+        fittedReg = nnRegressor.NeuralNetRegressor(model=model, patience=1).fit(
+            self.X_train, self.y_train)
+        
+        score = fittedReg.score(self.X_test, self.y_test)
 
 class TestFullScenarios(unittest.TestCase):
     pass

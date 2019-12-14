@@ -12,7 +12,8 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 from framework.utils import EarlyStopping, printMessage
-from torch.utils.data import TensorDataset, DataLoader
+from torch.utils.data import TensorDataset, DataLoader 
+from framework.metrics import average_relative_root_mean_squared_error
 
 #from gpar import GPARRegressor
 import sklearn.gaussian_process as gp
@@ -20,6 +21,8 @@ import inspect
 from collections import defaultdict
 
 # FIXME: Alwas Stops after 100 epochs
+
+
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
 
@@ -50,6 +53,7 @@ class BayesianNeuralNetworkRegression:
 
         if training_limit is None and patience is None:
             raise ValueError('Either training_limit or patience must be set')
+    # FIXME: Training behaviour when Patience and traininglimit is set
 
     def fit(self, X_train, y_train):
         """Fits the model to the training data set
@@ -103,7 +107,7 @@ class BayesianNeuralNetworkRegression:
                 stop = stopper.stop(validation_error, self.net)
             # if stop is True and self.patience > 1:
             #     # TODO: add loading of best,guide, optimizer and model here
-            #     self.net = stopper.best_model 
+            #     self.net = stopper.best_model
             #     self.svi.
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
@@ -218,6 +222,15 @@ class BayesianNeuralNetworkRegression:
                         Normal(prediction_mean, scale),
                         obs=y_data)
         return prediction_mean
+
+    def score(self, X_test, y_test):
+        """Returns Average Relative Root Mean Squared Error for given test data and targets
+
+        Args:
+            X_test (np.ndarray): Test samples
+            y_test (np.ndarray): True targets
+        """
+        return average_relative_root_mean_squared_error(self.predict(X_test[1]), y_test)
 
     # FOLLOWING FUNCTIONS ARE NECESSARY TO PERFORM GRID SEARCH
 

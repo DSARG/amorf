@@ -36,4 +36,10 @@ class TestMLSSVR(unittest.TestCase):
         with self.assertRaises(ValueError):
             model = moSVR.MLSSVR(1, 1, 'nonexistent_selector')
 
-    #TODO: Add Score Test
+    def test_score(self):
+        model = moSVR.MLSSVR(1, 1, 'poly')
+        fitted_Model = model.fit(self.X_train, self.y_train, 0.1, 0.1)
+        self.assertEqual(len(model.alpha), len(self.X_train))
+        self.assertEqual(len(model.alpha[0]), self.target_dim)
+        self.assertEqual(len(self.y_test[0, :]), np.size(model.b)) 
+        result = fitted_Model.score(self.X_test, self.X_train, self.y_test)

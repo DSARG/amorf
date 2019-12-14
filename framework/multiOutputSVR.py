@@ -1,5 +1,6 @@
 import numpy as np
-from sklearn.metrics.pairwise import rbf_kernel
+from sklearn.metrics.pairwise import rbf_kernel 
+from framework.metrics import average_relative_root_mean_squared_error
 
 
 class MLSSVR:
@@ -129,11 +130,11 @@ class MLSSVR:
         y_pred = t1 + t2 + t3
         return y_pred 
     
-    def score(self, X_test, y_test):
+    def score(self, X_test, X_train, y_test):
         """Returns Average Relative Root Mean Squared Error for given test data and targets
 
         Args:
             X_test (np.ndarray): Test samples
             y_test (np.ndarray): True targets
         """
-        return average_relative_root_mean_squared_error(self.predict(X_test), y_test) 
+        return average_relative_root_mean_squared_error(self.predict(X_test, X_train), y_test) 

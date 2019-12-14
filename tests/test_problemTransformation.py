@@ -23,19 +23,19 @@ class TestSingleTargetMethod(unittest.TestCase):
         self.assertRaises(ValueError, SingleTargetMethod,
                           'nonexistent_selector')
         self.assertEqual(SingleTargetMethod(
-            custom_regressor=RidgeCV()).MORegressor._estimator_type, 'regressor') 
-    
+            custom_regressor=RidgeCV()).MORegressor._estimator_type, 'regressor')
+
     def test_false_assignment(self):
         valid_estimator = RidgeCV()
-        invalid_estimator = object() 
+        invalid_estimator = object()
 
-        with self.assertRaises(Warning): 
-            SingleTargetMethod(custom_regressor=invalid_estimator) 
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(Warning):
+            SingleTargetMethod(custom_regressor=invalid_estimator)
+        with self.assertRaises(ValueError):
             SingleTargetMethod("selector", custom_regressor=invalid_estimator)
-        with self.assertRaises(ValueError): 
-            SingleTargetMethod(valid_estimator) 
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(ValueError):
+            SingleTargetMethod(valid_estimator)
+        with self.assertRaises(ValueError):
             SingleTargetMethod(invalid_estimator)
 
     def test_fit(self):
@@ -70,7 +70,12 @@ class TestSingleTargetMethod(unittest.TestCase):
         self.assertTrue(result.dtype is numpy.dtype(
             'float32') or result.dtype is numpy.dtype('float64'))
 
-    #TODO: Add Score Test
+    def test_score(self):
+        for selector in self.selectors:
+            result = SingleTargetMethod(selector).fit(
+                self.X_train, self.y_train)
+            score = result.score(self.X_test, self.y_test)
+
 
 class TestAutoEncoderRegression(unittest.TestCase):
 
@@ -89,19 +94,20 @@ class TestAutoEncoderRegression(unittest.TestCase):
         self.assertRaises(ValueError, SingleTargetMethod,
                           'nonexistent_selector')
         self.assertEqual(AutoEncoderRegression(
-            custom_regressor=RidgeCV()).regressor._estimator_type, 'regressor') 
-    
+            custom_regressor=RidgeCV()).regressor._estimator_type, 'regressor')
+
     def test_false_assignment(self):
         valid_estimator = RidgeCV()
-        invalid_estimator = object() 
+        invalid_estimator = object()
 
-        with self.assertRaises(Warning): 
-            AutoEncoderRegression(custom_regressor=invalid_estimator) 
-        with self.assertRaises(ValueError): 
-            AutoEncoderRegression("selector", custom_regressor=invalid_estimator)
-        with self.assertRaises(ValueError): 
-            AutoEncoderRegression(valid_estimator) 
-        with self.assertRaises(ValueError): 
+        with self.assertRaises(Warning):
+            AutoEncoderRegression(custom_regressor=invalid_estimator)
+        with self.assertRaises(ValueError):
+            AutoEncoderRegression(
+                "selector", custom_regressor=invalid_estimator)
+        with self.assertRaises(ValueError):
+            AutoEncoderRegression(valid_estimator)
+        with self.assertRaises(ValueError):
             AutoEncoderRegression(invalid_estimator)
 
     def test_fit(self):
@@ -136,4 +142,8 @@ class TestAutoEncoderRegression(unittest.TestCase):
         self.assertTrue(result.dtype is numpy.dtype(
             'float32') or result.dtype is numpy.dtype('float64'))
 
-    #TODO: Add Score Test
+    def test_score(self):
+        for selector in self.selectors:
+            result = AutoEncoderRegression(selector).fit(
+                self.X_train, self.y_train)
+            score = result.score(self.X_test, self.y_test)

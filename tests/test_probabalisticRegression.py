@@ -58,6 +58,9 @@ class TestBayesianRegression(unittest.TestCase):
         self.assertEqual(stds.shape, (16,2)) 
         self.assertEqual(means.shape,(16,2)) 
 
-    # TODO: add test for scoring mehtod
     def test_score(self): 
-        raise NotImplementedError
+        model = BayesianNeuralNetworkRegression(
+            patience=None, use_gpu=False, training_limit=1,learning_rate=1e-5, batch_size=2000)
+
+        fitted = model.fit(self.X_train, self.y_train) 
+        score = fitted.score(self.X_test, self.y_train)

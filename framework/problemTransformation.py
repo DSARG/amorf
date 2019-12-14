@@ -13,6 +13,7 @@ from torch import nn
 import numpy as np
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
+from framework.metrics import average_relative_root_mean_squared_error
 
 
 class SingleTargetMethod:
@@ -87,7 +88,7 @@ class SingleTargetMethod:
         result = self.MORegressor.predict(X_test)
         return result
 
-
+#FIXME: Wrong Output (100..0..100)
 class AutoEncoderRegression:
     """Regressor that uses an Autoencoder to reduce dimensionality of target variables 
 
@@ -205,8 +206,8 @@ class AutoEncoderRegression:
                 best_score = validation_loss
                 torch.save(model.state_dict(), self.path)
             if self.patience is not None:
-                stop = stopper.stop(validation_loss, model) 
-            if stop is True and self.patience > 1 :  
+                stop = stopper.stop(validation_loss, model)
+            if stop is True and self.patience > 1:
                 self.model = torch.load(stopper.best_model)
             # ===================log========================
             if epochs % self.print_after_epochs == 0:
@@ -214,7 +215,7 @@ class AutoEncoderRegression:
                     epochs, loss, validation_loss), self.verbosity)
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
-                stop = True 
+                stop = True
 
         y_pred_train = model(y_train_t)
         final_train_error = criterion(y_pred_train, y_train_t)
@@ -254,8 +255,8 @@ class AutoEncoderRegression:
         if batch_size is None:
             return torch.split(y_train_t, len(y_train_t))
         else:
-            return torch.split(y_train_t, batch_size) 
-    
+            return torch.split(y_train_t, batch_size)
+
     def score(self, X_test, y_test):
         """Returns Average Relative Root Mean Squared Error for given test data and targets
 
@@ -263,7 +264,7 @@ class AutoEncoderRegression:
             X_test (np.ndarray): Test samples
             y_test (np.ndarray): True targets
         """
-        return average_relative_root_mean_squared_error(self.predict(X_test), y_test) 
+        return average_relative_root_mean_squared_error(self.predict(X_test), y_test)
 
 
 class autoencoder(nn.Module):
