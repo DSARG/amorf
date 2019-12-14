@@ -223,6 +223,7 @@ class BayesianNeuralNetworkRegression:
                         obs=y_data)
         return prediction_mean
 
+    #FIXME Wronf Format of results
     def score(self, X_test, y_test):
         """Returns Average Relative Root Mean Squared Error for given test data and targets
 
