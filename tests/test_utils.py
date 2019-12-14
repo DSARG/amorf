@@ -1,8 +1,12 @@
 import unittest
 import framework.utils as utils
+from framework.neuralNetRegression import Linear_NN_Model
 
 
 class TestEarlyStopping(unittest.TestCase):
+
+    def setUp(self):
+        self.model = Linear_NN_Model(5, 5)
 
     def test_constantIncrease(self):
         patience = 3
@@ -13,10 +17,10 @@ class TestEarlyStopping(unittest.TestCase):
         falseCounter = 0
         for value in a:
             if(counter >= patience):
-                self.assertTrue(stopping.stop(value))
+                self.assertTrue(stopping.stop(value, self.model))
                 trueCounter += 1
             else:
-                self.assertFalse(stopping.stop(value))
+                self.assertFalse(stopping.stop(value, self.model))
                 falseCounter += 1
             counter += 1
         self.assertTrue(falseCounter is 2)
@@ -29,7 +33,7 @@ class TestEarlyStopping(unittest.TestCase):
         counter = 0
         falseCounter = 0
         for value in a:
-            self.assertFalse(stopping.stop(value))
+            self.assertFalse(stopping.stop(value, self.model))
             falseCounter += 1
             counter += 1
         self.assertTrue(counter is 6)
@@ -42,7 +46,7 @@ class TestEarlyStopping(unittest.TestCase):
         counter = 0
         falseCounter = 0
         for value in a:
-            self.assertFalse(stopping.stop(value))
+            self.assertFalse(stopping.stop(value, self.model))
             falseCounter += 1
             counter += 1
         self.assertTrue(counter is 6)
@@ -55,26 +59,12 @@ class TestEarlyStopping(unittest.TestCase):
         counter = 0
         falseCounter = 0
         for value in a:
-            self.assertFalse(stopping.stop(value))
+            self.assertFalse(stopping.stop(value, self.model))
             falseCounter += 1
             counter += 1
         self.assertTrue(counter is 6)
         self.assertTrue(falseCounter is 6)
 
-# class TestRaiseWarningOrError(unittest.TestCase): 
 
-#     def test_raisWarningOrError(self): 
-#         with self.assertRaises(ValueError): 
-#             utils.raiseWarningOrError(ValueError,'Hello World',verbosity=0) 
-#         with self.assertRaises(ValueError): 
-#             utils.raiseWarningOrError(ValueError,'Hello World',verbosity=1)
-#         with self.assertRaises(ValueError): 
-#             utils.raiseWarningOrError(ValueError,'Hello World',verbosity=2) 
-#         
-#         utils.raiseWarningOrError(Warning,'Hello World',verbosity=0)
-#         with self.assertRaises(Warning): 
-#             utils.raiseWarningOrError(Warning,'Hello World',verbosity=1) 
-#         with self.assertRaises(Warning): 
-#             utils.raiseWarningOrError(Warning,'Hello World',verbosity=2) 
 if __name__ == '__main__':
     unittest.main()

@@ -2,8 +2,6 @@ import numpy as np
 from numpy import mean, sqrt
 import torch as torch
 
-# TODO: add function to check diemsnions
-
 
 def average_correlation_coefficient(y_pred, y_test):
     """Calculate Average Correlation Coefficient

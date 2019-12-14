@@ -5,10 +5,12 @@ class EarlyStopping:
     """
     Early Stopping Mechanism
 
-    Returns True if training should stop and False if it should continue
+    Returns True if training should stop and False if it should continue. 
+    Saves the best model. 
+    Only works for decreasing error values.
 
     Args:
-        patience (int) : Stop after p continous incrementations
+        patience (int) : Stop after p continous incrementations.
 
     Attributes:
         lastError (float) : Error-value of previous call of the 'stop'-function
@@ -27,25 +29,27 @@ class EarlyStopping:
 
     def stop(self, newError, model):
         """
-        Decides whether training should be stopped
+        Decides whether training should be stopped 
+
+        Decides whether training should be stopped. Every time the erorr decreases the model is saved.
 
         Args:
-            newError (float): Training or validation Error
+            newError (float): Training or validation Error.
 
         Returns:
-            bool :  Return true if number of values higher than the previous one equals patience
-        """ 
-        if self.best_model is None: 
+            bool :  Return true if number of values higher than the previous one equals patience.
+        """
+        if self.best_model is None:
             self.best_model = model
         if(newError > self.lastError):
             self.succeedingHigherValues += 1
         else:
             self.succeedingHigherValues = 0
-            __save_state_dict(model)
+            self.__save_state_dict(model)
 
         self.lastError = newError
-        if(self.patience <= self.succeedingHigherValues): 
-            if self.patience>1:
+        if(self.patience <= self.succeedingHigherValues):
+            if self.patience > 1:
                 self.best_model = torch.load("checkpoint.ckpt")
             return True
         else:
@@ -56,11 +60,9 @@ class EarlyStopping:
 
 
 def printMessage(Message, verbosity):
+    """Prints messages if verbosity is set 
+
+    Does not do much currently but can be expanded later.
+    """
     if(verbosity == 1):
         print(Message)
-
-# def raiseWarningOrError(exceptionType,message,verbosity):
-#     if(isinstance(exceptionType,Warning) and verbosity >= 1):
-#         raise Warning(message)
-#     elif(isinstance(exceptionType,BaseException) and not isinstance(exceptionType,Warning)):
-#         raise exceptionType(message)
