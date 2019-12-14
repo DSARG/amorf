@@ -101,15 +101,17 @@ class BayesianNeuralNetworkRegression:
             train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
             if self.patience is not None:
                 stop = stopper.stop(validation_error, self.net)
-            if stop is True and self.patience > 1:
-                self.model = torch.load(stopper.best_model)
+            # if stop is True and self.patience > 1:
+            #     # TODO: add loading of best,guide, optimizer and model here
+            #     self.net = stopper.best_model 
+            #     self.svi.
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
                     epochs, validation_error, train_error), self.verbosity)
 
             epochs += 1
 
-            if self.training_limit is not None and self.training_limit <= epochs:
+            if self.patience is None and self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
         final_train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
@@ -119,7 +121,6 @@ class BayesianNeuralNetworkRegression:
             epochs, final_train_error, final_validation_error), self.verbosity)
         return self
 
-    # FIXME: remove y_test
     def predict(self, X_test, num_samples=100):
         """Predicts the target variables for the given test set
         Args:
@@ -130,18 +131,6 @@ class BayesianNeuralNetworkRegression:
         from pyro.infer import Predictive
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
 
-        # # get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
-        # def wrapped_model(x_data, y_data):
-        #     pyro.sample("prediction", Delta(self.model(x_data, y_data)))
-        # posterior = self.svi.run(x_data_test, y_data_test)
-        # trace_pred = TracePredictive(
-        #     wrapped_model, posterior, num_samples)
-        # post_pred = trace_pred.run(x_data_test, None)
-        # marginal = EmpiricalMarginal(post_pred, ['obs'])._get_samples_and_weights()[
-        #     0].detach().cpu().numpy()
-        # predictions = torch.from_numpy(marginal[:, 0, :, :]).to(self.Device)
-        # stds, means = torch.std_mean(predictions, 0)
-        # return stds.cpu().detach().numpy(), means.cpu().detach().numpy()
         predictive = Predictive(self.net, guide=self.guide, num_samples=100,
                                 return_sites=("linear.weight", "obs", "_RETURN"))
 

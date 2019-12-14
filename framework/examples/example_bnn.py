@@ -8,7 +8,7 @@ X, y = RiverFlow1().get_numpy()
 X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2)
 input_dim=len(X_train[0])
 output_dim=len(y_train[0]) 
-model = BayesianNeuralNetworkRegression(patience=5,use_gpu=True, batch_size=2000) 
+model = BayesianNeuralNetworkRegression(patience=3,use_gpu=True, batch_size=2000) 
 
 model.fit(X_train,y_train) 
 stds,means = model.predict(X_test,y_test) 
