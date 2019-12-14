@@ -4,7 +4,6 @@ from  framework.probabalisticRegression import BayesianNeuralNetworkRegression
 from  framework.metrics import average_relative_root_mean_squared_error
 from sklearn.model_selection import train_test_split 
 import numpy as np
-
 X, y = RiverFlow1().get_numpy() 
 X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2)
 input_dim=len(X_train[0])

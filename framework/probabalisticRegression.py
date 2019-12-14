@@ -15,11 +15,11 @@ from framework.utils import EarlyStopping, printMessage
 from torch.utils.data import TensorDataset, DataLoader
 
 #from gpar import GPARRegressor
-import sklearn.gaussian_process as gp 
+import sklearn.gaussian_process as gp
 import inspect
 from collections import defaultdict
 
-
+# FIXME: Alwas Stops after 100 epochs
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
 
@@ -74,9 +74,9 @@ class BayesianNeuralNetworkRegression:
         n_features = len(X_train_t[0])
         self.net = NN(n_features, n_targets)
         self.net.to(self.Device)
-        self.guide = AutoDiagonalNormal(self.__model)
+        self.guide = AutoDiagonalNormal(self.model)
         self.optim = Adam({"lr": self.learning_rate})
-        self.svi = SVI(self.__model, self.guide, self.optim, loss=Trace_ELBO())
+        self.svi = SVI(self.model, self.guide, self.optim, loss=Trace_ELBO())
 
         self.batch_size = len(
             X_train_t) if self.batch_size is None else self.batch_size
@@ -101,7 +101,7 @@ class BayesianNeuralNetworkRegression:
             train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
             if self.patience is not None:
                 stop = stopper.stop(validation_error, self.net)
-            if stop is True and self.patience > 1 : 
+            if stop is True and self.patience > 1:
                 self.model = torch.load(stopper.best_model)
             if epochs % self.print_after_epochs == 0:
                 printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
@@ -129,10 +129,10 @@ class BayesianNeuralNetworkRegression:
         """
         from pyro.infer import Predictive
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
-        
+
         # # get_marginal = lambda traces, sites:EmpiricalMarginal(traces, sites)._get_samples_and_weights()[0].detach().cpu().numpy()
         # def wrapped_model(x_data, y_data):
-        #     pyro.sample("prediction", Delta(self.__model(x_data, y_data)))
+        #     pyro.sample("prediction", Delta(self.model(x_data, y_data)))
         # posterior = self.svi.run(x_data_test, y_data_test)
         # trace_pred = TracePredictive(
         #     wrapped_model, posterior, num_samples)
@@ -141,18 +141,18 @@ class BayesianNeuralNetworkRegression:
         #     0].detach().cpu().numpy()
         # predictions = torch.from_numpy(marginal[:, 0, :, :]).to(self.Device)
         # stds, means = torch.std_mean(predictions, 0)
-        # return stds.cpu().detach().numpy(), means.cpu().detach().numpy()   
+        # return stds.cpu().detach().numpy(), means.cpu().detach().numpy()
         predictive = Predictive(self.net, guide=self.guide, num_samples=100,
-                        return_sites=("linear.weight", "obs", "_RETURN")) 
-        
+                                return_sites=("linear.weight", "obs", "_RETURN"))
+
         samples = predictive(x_data_test)
-        pred_summary = self.__summary(samples) 
+        pred_summary = self.__summary(samples)
         stds = pred_summary['_RETURN']['std']
         means = pred_summary['_RETURN']['mean']
 
-        return stds.cpu().detach().numpy(), means.cpu().detach().numpy()  
-    
-    def __summary(self,samples):
+        return stds.cpu().detach().numpy(), means.cpu().detach().numpy()
+
+    def __summary(self, samples):
         site_stats = {}
         for k, v in samples.items():
             site_stats[k] = {
@@ -171,7 +171,9 @@ class BayesianNeuralNetworkRegression:
         """
         model_path = path + '_model'
         opt_path = path + '_opt'
+        guide_path = path + '_guide'
         torch.save(self.net, model_path)
+        torch.save(self.guide, guide_path)
 
         self.optim.save(opt_path)
         ps = pyro.get_param_store()
@@ -185,16 +187,18 @@ class BayesianNeuralNetworkRegression:
         """
         model_path = path + '_model'
         opt_path = path + '_opt'
+        guide_path = path + '_guide'
         self.net = torch.load(model_path)
 
         pyro.get_param_store().load(path + '_params')
 
         self.optim = Adam({"lr": self.learning_rate})
         self.optim.load(opt_path)
-        self.guide = AutoDiagonalNormal(self.__model)
+        self.guide = AutoDiagonalNormal(self.model)
+        self.guide = torch.load(guide_path)
         self.svi = SVI(self.net, self.guide, self.optim, loss=Trace_ELBO())
 
-    def __model(self, x_data, y_data):
+    def model(self, x_data, y_data):
         fc1w_prior = Normal(loc=torch.zeros_like(
             self.net.fc1.weight).to(self.Device), scale=torch.ones_like(self.net.fc1.weight).to(self.Device))
         fc1b_prior = Normal(loc=torch.zeros_like(
@@ -224,9 +228,9 @@ class BayesianNeuralNetworkRegression:
             pyro.sample("obs",
                         Normal(prediction_mean, scale),
                         obs=y_data)
-        return prediction_mean  
+        return prediction_mean
 
-    ### FOLLOWING FUNCTIONS ARE NECESSARY TO PERFORM GRID SEARCH
+    # FOLLOWING FUNCTIONS ARE NECESSARY TO PERFORM GRID SEARCH
 
     def _get_param_names(cls):
         """Get parameter names for the estimator"""
@@ -273,8 +277,8 @@ class BayesianNeuralNetworkRegression:
                 deep_items = value.get_params().items()
                 out.update((key + '__' + k, val) for k, val in deep_items)
             out[key] = value
-        return out 
-    
+        return out
+
     def set_params(self, **params):
         """Set the parameters of this estimator.
         The method works on simple estimators as well as on nested objects
