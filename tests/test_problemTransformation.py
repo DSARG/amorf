@@ -70,6 +70,7 @@ class TestSingleTargetMethod(unittest.TestCase):
         self.assertTrue(result.dtype is numpy.dtype(
             'float32') or result.dtype is numpy.dtype('float64'))
 
+    #TODO: Add Score Test
 
 class TestAutoEncoderRegression(unittest.TestCase):
 
@@ -134,3 +135,5 @@ class TestAutoEncoderRegression(unittest.TestCase):
         self.assertTrue(type(result) is numpy.ndarray)
         self.assertTrue(result.dtype is numpy.dtype(
             'float32') or result.dtype is numpy.dtype('float64'))
+
+    #TODO: Add Score Test

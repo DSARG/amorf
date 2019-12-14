@@ -132,7 +132,7 @@ class BayesianNeuralNetworkRegression:
         x_data_test = torch.tensor(X_test, dtype=torch.float).to(self.Device)
 
         predictive = Predictive(self.net, guide=self.guide, num_samples=100,
-                                return_sites=("linear.weight", "obs", "_RETURN"))
+                                return_sites=("obs", "_RETURN"))
 
         samples = predictive(x_data_test)
         pred_summary = self.__summary(samples)

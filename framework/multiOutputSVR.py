@@ -127,4 +127,13 @@ class MLSSVR:
         t2 = K @ self.alpha * (m / self.lambd)
         t3 = np.tile(b.T, (N_test, 1))
         y_pred = t1 + t2 + t3
-        return y_pred
+        return y_pred 
+    
+    def score(self, X_test, y_test):
+        """Returns Average Relative Root Mean Squared Error for given test data and targets
+
+        Args:
+            X_test (np.ndarray): Test samples
+            y_test (np.ndarray): True targets
+        """
+        return average_relative_root_mean_squared_error(self.predict(X_test), y_test) 

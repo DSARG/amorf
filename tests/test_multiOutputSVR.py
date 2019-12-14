@@ -35,3 +35,5 @@ class TestMLSSVR(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             model = moSVR.MLSSVR(1, 1, 'nonexistent_selector')
+
+    #TODO: Add Score Test

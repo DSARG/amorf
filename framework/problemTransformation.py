@@ -254,7 +254,16 @@ class AutoEncoderRegression:
         if batch_size is None:
             return torch.split(y_train_t, len(y_train_t))
         else:
-            return torch.split(y_train_t, batch_size)
+            return torch.split(y_train_t, batch_size) 
+    
+    def score(self, X_test, y_test):
+        """Returns Average Relative Root Mean Squared Error for given test data and targets
+
+        Args:
+            X_test (np.ndarray): Test samples
+            y_test (np.ndarray): True targets
+        """
+        return average_relative_root_mean_squared_error(self.predict(X_test), y_test) 
 
 
 class autoencoder(nn.Module):

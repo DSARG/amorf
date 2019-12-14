@@ -1,14 +1,14 @@
-from framework.datasets import RiverFlow1 
+from framework.datasets import RiverFlow1, EDM 
 import framework.neuralNetRegression as nn 
 from  framework.probabalisticRegression import BayesianNeuralNetworkRegression
 from  framework.metrics import average_relative_root_mean_squared_error
 from sklearn.model_selection import train_test_split 
 import numpy as np
-X, y = RiverFlow1().get_numpy() 
+X, y = EDM().get_numpy() 
 X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.2)
 input_dim=len(X_train[0])
 output_dim=len(y_train[0]) 
-model = BayesianNeuralNetworkRegression(patience=3,use_gpu=True, batch_size=2000) 
+model = BayesianNeuralNetworkRegression(patience=5,use_gpu=True, batch_size=2000) 
 
 model.fit(X_train,y_train) 
 stds,means = model.predict(X_test,y_test) 
