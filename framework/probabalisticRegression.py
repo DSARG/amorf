@@ -20,8 +20,6 @@ import sklearn.gaussian_process as gp
 import inspect
 from collections import defaultdict
 
-# FIXME: Alwas Stops after 100 epochs
-
 
 class BayesianNeuralNetworkRegression:
     """Bayesian Neural Network that uses a Pyro model to predict multiple targets
@@ -115,7 +113,7 @@ class BayesianNeuralNetworkRegression:
 
             epochs += 1
 
-            if self.patience is None and self.training_limit is not None and self.training_limit <= epochs:
+            if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
         final_train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
