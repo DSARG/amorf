@@ -45,7 +45,7 @@ class EarlyStopping:
             self.succeedingHigherValues += 1
         else:
             self.succeedingHigherValues = 0
-            self.__save_state_dict(model)
+            self.__save_model(model)
 
         self.lastError = newError
         if(self.patience <= self.succeedingHigherValues):
@@ -55,8 +55,8 @@ class EarlyStopping:
         else:
             return False
 
-    def __save_state_dict(self, model):
-        torch.save(model.state_dict(), "checkpoint.ckpt")
+    def __save_model(self, model):
+        torch.save(model, "checkpoint.ckpt")
 
 
 def printMessage(Message, verbosity):
