@@ -19,9 +19,6 @@ class EarlyStopping:
     """
 
     def __init__(self, patience):
-        # FIXME: setfirst error to None ->
-        # TODO: Keep the best model and return after stop
-        # TODO: keep the best model with the lowest validation error
         self.lastError = 0
         self.patience = patience
         self.succeedingHigherValues = 0
@@ -50,13 +47,13 @@ class EarlyStopping:
         self.lastError = newError
         if(self.patience <= self.succeedingHigherValues):
             if self.patience > 1:
-                self.best_model = torch.load("checkpoint.ckpt")
+                self.best_model = torch.load("checkpoint.pth.tar")
             return True
         else:
             return False
 
     def __save_model(self, model):
-        torch.save(model, "checkpoint.ckpt")
+        torch.save({'state_dict': model.state_dict()}, 'checkpoint.pth.tar')
 
 
 def printMessage(Message, verbosity):
