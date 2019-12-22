@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.metrics.pairwise import rbf_kernel 
+from sklearn.metrics.pairwise import rbf_kernel
 from framework.metrics import average_relative_root_mean_squared_error
 
 
@@ -27,8 +27,8 @@ class MLSSVR:
     def __init__(self, kernel_param1, kernel_param2, kernel_selector="linear"):
         self.kernel_selector = kernel_selector
         self.kernel_param1 = kernel_param1
-        self.kernel_param2 = kernel_param2 
-        selectors = ['linear', 'poly', 'rbf', 'erbf', 'sigmoid'] 
+        self.kernel_param2 = kernel_param2
+        selectors = ['linear', 'poly', 'rbf', 'erbf', 'sigmoid']
         if self.kernel_selector not in selectors:
             raise ValueError(
                 'Unknown kernel method: {}'.format(kernel_selector))
@@ -46,10 +46,10 @@ class MLSSVR:
         elif kernel_selector.lower() == 'rbf':
 
             K = rbf_kernel(X, Z, gamma=param1)
-        #TODO: Add ERBF
+        # TODO: Add ERBF
         # elif kernel_selector.lower() is 'erbf':
         elif kernel_selector.lower() == 'sigmoid':
-            K = np.tanh(param1 * X @ Z.T / len(X[0]) + param2) 
+            K = np.tanh(param1 * X @ Z.T / len(X[0]) + param2)
 
         else:
             raise NotImplementedError
@@ -105,6 +105,7 @@ class MLSSVR:
         self.b = b
         return self
 
+    # FIXME: Remove X_train
     def predict(self, X_test, X_train):
         """Predicts the target variables for the given test set
 
@@ -128,8 +129,8 @@ class MLSSVR:
         t2 = K @ self.alpha * (m / self.lambd)
         t3 = np.tile(b.T, (N_test, 1))
         y_pred = t1 + t2 + t3
-        return y_pred 
-    
+        return y_pred
+
     def score(self, X_test, X_train, y_test):
         """Returns Average Relative Root Mean Squared Error for given test data and targets
 
@@ -137,4 +138,4 @@ class MLSSVR:
             X_test (np.ndarray): Test samples
             y_test (np.ndarray): True targets
         """
-        return average_relative_root_mean_squared_error(self.predict(X_test, X_train), y_test) 
+        return average_relative_root_mean_squared_error(self.predict(X_test, X_train), y_test)

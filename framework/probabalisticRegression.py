@@ -12,13 +12,15 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 from framework.utils import EarlyStopping, printMessage
-from torch.utils.data import TensorDataset, DataLoader 
+from torch.utils.data import TensorDataset, DataLoader
 from framework.metrics import average_relative_root_mean_squared_error
 
 #from gpar import GPARRegressor
 import sklearn.gaussian_process as gp
 import inspect
 from collections import defaultdict
+
+# FIXME Wronf Format of results
 
 
 class BayesianNeuralNetworkRegression:
@@ -221,7 +223,6 @@ class BayesianNeuralNetworkRegression:
                         obs=y_data)
         return prediction_mean
 
-    #FIXME Wronf Format of results
     def score(self, X_test, y_test):
         """Returns Average Relative Root Mean Squared Error for given test data and targets
 
@@ -229,7 +230,9 @@ class BayesianNeuralNetworkRegression:
             X_test (np.ndarray): Test samples
             y_test (np.ndarray): True targets
         """
-        return average_relative_root_mean_squared_error(self.predict(X_test[1]), y_test)
+        # return means
+        y_pred = self.predict(X_test)[1]
+        return average_relative_root_mean_squared_error(y_pred, y_test)
 
     # FOLLOWING FUNCTIONS ARE NECESSARY TO PERFORM GRID SEARCH
 
