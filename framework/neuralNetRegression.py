@@ -33,7 +33,7 @@ class NeuralNetRegressor:
         print_after_epochs (int,optional): Specifies after how many epochs training and validation error will be printed to command line. Default: 10
     """
 
-    def __init__(self, model=None, batch_size=None, shuffle=False, learning_rate=0.01, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=10):
+    def __init__(self, model=None, batch_size=None, shuffle=False, learning_rate=0.01, use_gpu=False, patience=None, training_limit=1000, verbosity=1, print_after_epochs=100):
         self.Device = 'cpu'
         if use_gpu is True and torch.cuda.is_available():
             torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -47,7 +47,7 @@ class NeuralNetRegressor:
         else:
             self.model = None
 
-        self.loss_fn = average_relative_root_mean_squared_error  # nn.MSELoss()
+        self.loss_fn = nn.MSELoss() #average_relative_root_mean_squared_error  # nn.MSELoss()
         self.patience = patience
         self.learning_rate = learning_rate
         self.verbosity = verbosity
@@ -120,8 +120,9 @@ class NeuralNetRegressor:
 
             if self.patience is not None:
                 stop = stopper.stop(validation_loss, self.model) 
-            if stop is True and self.patience > 1 : 
-                self.model = torch.load(stopper.best_model)
+            if stop is True and self.patience > 1 :  
+                pass
+                #self.model = stopper.best_model
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
