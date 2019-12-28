@@ -121,8 +121,7 @@ class NeuralNetRegressor:
             if self.patience is not None:
                 stop = stopper.stop(validation_loss, self.model) 
             if stop is True and self.patience > 1 :  
-                pass
-                #self.model = stopper.best_model
+                self.model.load_state_dict(stopper.best_model['state_dict'])
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
