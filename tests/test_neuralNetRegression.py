@@ -1,8 +1,8 @@
 import unittest
-import framework.neuralNetRegression as nnRegressor
-import framework.datasets as ds
+import amorf.neuralNetRegression as nnRegressor
+import amorf.datasets as ds
 from sklearn.model_selection import train_test_split
-from framework.metrics import average_relative_root_mean_squared_error
+from amorf.metrics import average_relative_root_mean_squared_error
 import numpy
 import torch
 import os

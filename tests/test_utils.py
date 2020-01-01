@@ -1,6 +1,6 @@
 import unittest
-import framework.utils as utils
-from framework.neuralNetRegression import Linear_NN_Model
+import amorf.utils as utils
+from amorf.neuralNetRegression import Linear_NN_Model
 
 
 class TestEarlyStopping(unittest.TestCase):

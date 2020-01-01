@@ -7,13 +7,13 @@ import xgboost as xgb
 from sklearn.neural_network import MLPRegressor
 
 # AutoEncoderRegression
-from framework.utils import EarlyStopping, printMessage
+from amorf.utils import EarlyStopping, printMessage
 import torch
 from torch import nn
 import numpy as np
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
-from framework.metrics import average_relative_root_mean_squared_error
+from amorf.metrics import average_relative_root_mean_squared_error
 
 
 class SingleTargetMethod:

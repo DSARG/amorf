@@ -1,7 +1,7 @@
-from framework.datasets import RiverFlow1, EDM, WaterQuality
-import framework.neuralNetRegression as nn
-from framework.problemTransformation import AutoEncoderRegression
-from framework.metrics import average_relative_root_mean_squared_error
+from amorf.datasets import RiverFlow1, EDM, WaterQuality
+import amorf.neuralNetRegression as nn
+from amorf.problemTransformation import AutoEncoderRegression
+from amorf.metrics import average_relative_root_mean_squared_error
 from sklearn.model_selection import train_test_split
 import torch
 

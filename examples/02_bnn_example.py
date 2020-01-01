@@ -1,7 +1,7 @@
-from framework.datasets import RiverFlow1, EDM 
-import framework.neuralNetRegression as nn 
-from  framework.probabalisticRegression import BayesianNeuralNetworkRegression
-from  framework.metrics import average_relative_root_mean_squared_error
+from amorf.datasets import RiverFlow1, EDM 
+import amorf.neuralNetRegression as nn 
+from  amorf.probabalisticRegression import BayesianNeuralNetworkRegression
+from  amorf.metrics import average_relative_root_mean_squared_error
 from sklearn.model_selection import train_test_split 
 import numpy as np
 X, y = EDM().get_numpy() 

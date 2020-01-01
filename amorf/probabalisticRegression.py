@@ -11,9 +11,9 @@ from pyro.infer.autoguide import AutoDiagonalNormal
 import numpy as np
 
 from sklearn.model_selection import train_test_split
-from framework.utils import EarlyStopping, printMessage
+from amorf.utils import EarlyStopping, printMessage
 from torch.utils.data import TensorDataset, DataLoader
-from framework.metrics import average_relative_root_mean_squared_error
+from amorf.metrics import average_relative_root_mean_squared_error
 
 #from gpar import GPARRegressor
 import sklearn.gaussian_process as gp

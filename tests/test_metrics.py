@@ -1,5 +1,5 @@
 import unittest
-import framework.metrics as metrics
+import amorf.metrics as metrics
 import numpy as np
 import torch as torch
 

@@ -1,6 +1,6 @@
-import framework.datasets as ds
-import framework.problemTransformation as pt
-import framework.metrics as metrics
+import amorf.datasets as ds
+import amorf.problemTransformation as pt
+import amorf.metrics as metrics
 import numpy as np
 from sklearn.model_selection import KFold 
 
