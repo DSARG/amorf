@@ -6,4 +6,6 @@ tests/__pychache__/*
 .*
 *.*.pyc 
 *.ckpt 
-*.txt
+*.txt 
+dist/* 
+build/*

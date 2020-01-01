@@ -1,0 +1,23 @@
+Metadata-Version: 2.1
+Name: amorf
+Version: 0.0.2
+Summary: A framework for multi-output regression in python
+Home-page: https://github.com/haugjo/david_master_thesis
+Author: David Hildner
+Author-email: test@test.ru
+License: UNKNOWN
+Project-URL: Bug Reports, https://github.com/pypa/sampleproject/issues
+Project-URL: Source, https://github.com/pypa/sampleproject/
+Description: # A Multi-Output Regression Framework in Python
+        
+        This Project is still a work in Progress.
+Keywords: multi-output regression bayesian neural network artificial intelligence
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.7
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
