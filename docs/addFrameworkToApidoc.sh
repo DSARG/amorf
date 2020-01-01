@@ -1,2 +1,2 @@
-sphinx-apidoc -f -o source/ ../framework/
+sphinx-apidoc -f -o source/ ../amorf/
 
