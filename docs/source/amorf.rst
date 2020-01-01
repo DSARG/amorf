@@ -1,8 +1,5 @@
-amorf package
+amorf 
 =============
-
-Submodules
-----------
 
 amorf.datasets module
 ---------------------
