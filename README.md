@@ -7,7 +7,14 @@ amorf is a Python library for multi-output regression. It combines several diffe
 This project was created as part of a masters thesis by David Hildner
 
 ## Motivation 
+Multi-output (or multi-target) regression models are models with multiple continous target variables. 
 
+This framework was largely inspired by 
+ 
+> Borchani, Hanen & Varando, Gherardo & Bielza, Concha & Larranaga, Pedro. (2015). A survey on multi-output regression. Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery. 5. 10.1002/widm.1157.  
+
+
+The idea of this framework/library is to collect and combine several different apporaches of multi-output regression in one place. This allows you to get started real quick and then extend and tweak the provided models to suit your needs.
 ## Getting Started 
 
 [//]: # (### Prerequisites )
