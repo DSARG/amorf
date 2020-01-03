@@ -211,7 +211,7 @@ class AutoEncoderRegression:
                 model.load_state_dict(stopper.best_model['state_dict'])
             # ===================log========================
             if epochs % self.print_after_epochs == 0:
-                printMessage('Epoch {}\nValidation Error: {}\n Train Error:{}'.format(
+                printMessage('Epoch {}\nValidation Error: {}\nTrain Error:{}'.format(
                     epochs, loss, validation_loss), self.verbosity)
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
