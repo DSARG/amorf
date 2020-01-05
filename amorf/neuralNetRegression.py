@@ -162,7 +162,7 @@ class NeuralNetRegressor:
             store_path (string): Path to store model at
         """
         try:
-            torch.save(self.model, store_path + '.ckpt')
+            torch.save(self.model, store_path)
         except Exception:
             printMessage(traceback.format_exc(), self.verbosity)
 
