@@ -43,7 +43,7 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.2',  # Required
+    version='0.0.3',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
@@ -147,16 +147,14 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pyro_ppl>=1.0.0',
+        'pyro-ppl>=1.0.0',
         'numpy>=1.17.2',
-        'liac_arff>=2.4.0',
+        'liac-arff>=2.4',
         # 'matplotlib==2.2.3',
         'torch>=1.3.1',
         # 'sphinx_rtd_theme==0.4.3',
-        'xgboost>=0.90',
-        'liac-arff>=0.9',
-        'pyro>=3.16',
-        'scikit_learn>=0.22'],  # Optional
+        'xgboost>=0.9',
+        'scikit-learn>=0.22'],  # Optional
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
