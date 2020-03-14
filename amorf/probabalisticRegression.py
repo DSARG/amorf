@@ -82,10 +82,10 @@ class BayesianNeuralNetworkRegression:
         self.optim = Adam({"lr": self.learning_rate})
         self.svi = SVI(self.model, self.guide, self.optim, loss=Trace_ELBO())
 
-        self.batch_size = len(
+        batch_size = len(
             X_train_t) if self.batch_size is None else self.batch_size
         train_dataloader = DataLoader(TensorDataset(
-            X_train_t, y_train_t), batch_size=self.batch_size, shuffle=self.shuffle)
+            X_train_t, y_train_t), batch_size=batch_size, shuffle=self.shuffle)
         pyro.clear_param_store()
         losses = []
         if self.patience is not None:
