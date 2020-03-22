@@ -1,5 +1,5 @@
 amorf
-=========
+=====
 
 .. toctree::
    :maxdepth: 4
