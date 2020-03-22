@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
-import framework.multiOutputSVR as moSVR
-import framework.datasets as ds
+import amorf.multiOutputSVR as moSVR
+import amorf.datasets as ds
 from sklearn.model_selection import train_test_split
 
 

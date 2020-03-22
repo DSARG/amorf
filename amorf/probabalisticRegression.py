@@ -11,9 +11,9 @@ from pyro.infer.autoguide import AutoDiagonalNormal
 import numpy as np
 
 from sklearn.model_selection import train_test_split
-from framework.utils import EarlyStopping, printMessage
+from amorf.utils import EarlyStopping, printMessage
 from torch.utils.data import TensorDataset, DataLoader
-from framework.metrics import average_relative_root_mean_squared_error
+from amorf.metrics import average_relative_root_mean_squared_error
 
 #from gpar import GPARRegressor
 import sklearn.gaussian_process as gp
@@ -82,10 +82,10 @@ class BayesianNeuralNetworkRegression:
         self.optim = Adam({"lr": self.learning_rate})
         self.svi = SVI(self.model, self.guide, self.optim, loss=Trace_ELBO())
 
-        self.batch_size = len(
+        batch_size = len(
             X_train_t) if self.batch_size is None else self.batch_size
         train_dataloader = DataLoader(TensorDataset(
-            X_train_t, y_train_t), batch_size=self.batch_size, shuffle=self.shuffle)
+            X_train_t, y_train_t), batch_size=batch_size, shuffle=self.shuffle)
         pyro.clear_param_store()
         losses = []
         if self.patience is not None:
@@ -357,6 +357,7 @@ class GaussianProcessAutoregressiveRegression:
         raise NotImplementedError
 
 
+#TODO: AAAdd test
 class GaussianProcessRegression:
     """Wrapper around sklearns GaussianProcessRegressor (sklearn.gaussian_process.GaussienProcessRegressor) 
     (from sklearn Documentation https://github.com/scikit-learn/scikit-learn/blob/1495f6924/sklearn/gaussian_process/gpr.py)

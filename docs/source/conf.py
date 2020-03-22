@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'framework'
+project = 'amorf'
 copyright = '2019, dhildner'
 author = 'dhildner'
 

@@ -1,6 +1,6 @@
 import unittest
-from framework.problemTransformation import AutoEncoderRegression, SingleTargetMethod, _implements_SciKitLearn_API
-import framework.datasets as ds
+from amorf.problemTransformation import AutoEncoderRegression, SingleTargetMethod, _implements_SciKitLearn_API
+import amorf.datasets as ds
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
 import numpy

@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics.pairwise import rbf_kernel
-from framework.metrics import average_relative_root_mean_squared_error
+from amorf.metrics import average_relative_root_mean_squared_error
 
 
 class MLSSVR:

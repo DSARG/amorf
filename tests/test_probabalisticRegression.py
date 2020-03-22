@@ -1,8 +1,8 @@
 import os
 import numpy
 import unittest
-from framework.probabalisticRegression import BayesianNeuralNetworkRegression
-import framework.datasets as ds
+from amorf.probabalisticRegression import BayesianNeuralNetworkRegression
+import amorf.datasets as ds
 from sklearn.model_selection import train_test_split
 
 

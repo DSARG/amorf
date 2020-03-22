@@ -11,8 +11,8 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 
-from framework.metrics import average_relative_root_mean_squared_error
-from framework.utils import EarlyStopping, printMessage
+from amorf.metrics import average_relative_root_mean_squared_error
+from amorf.utils import EarlyStopping, printMessage
 
 
 class NeuralNetRegressor:
@@ -162,7 +162,7 @@ class NeuralNetRegressor:
             store_path (string): Path to store model at
         """
         try:
-            torch.save(self.model, store_path + '.ckpt')
+            torch.save(self.model, store_path)
         except Exception:
             printMessage(traceback.format_exc(), self.verbosity)
 

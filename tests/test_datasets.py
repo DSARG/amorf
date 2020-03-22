@@ -6,7 +6,7 @@ import unittest
 
 import numpy
 
-import framework.datasets as datasets
+import amorf.datasets as datasets
 
 
 class TestEDMDataset(unittest.TestCase):

@@ -1,7 +1,7 @@
-framework
+amorf
 =========
 
 .. toctree::
    :maxdepth: 4
 
-   framework
+   amorf
