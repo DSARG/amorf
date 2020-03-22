@@ -43,12 +43,12 @@ setup(
     # For a discussion on single-sourcing the version across setup.py and the
     # project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.4',  # Required
+    version='0.0.5',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description='A framework for multi-output regression in python',  # Optional
+    description='A framework for multi-output regression in Python',  # Optional
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
@@ -58,7 +58,7 @@ setup(
     #
     # This field corresponds to the "Description" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#description-optional
-    long_description=long_description,  # Optional
+    #long_description=long_description,  # Optional
 
     # Denotes that our long_description is in Markdown; valid values are
     # text/plain, text/x-rst, and text/markdown
@@ -76,7 +76,7 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='https://github.com/haugjo/david_master_thesis',  # Optional
+    url='https://github.com/DSAAR/amorf',  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
@@ -84,7 +84,7 @@ setup(
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='test@test.ru',  # Optional
+    author_email='david.hildner@student.uni-tuebingen.de',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -102,7 +102,7 @@ setup(
         'Topic :: Software Development :: Libraries',
 
         # Pick your license as you wish
-        'License :: OSI Approved :: MIT License',
+        'License :: MIT License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
@@ -210,7 +210,8 @@ setup(
 
 
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/pypa/sampleproject/issues',
-        'Source': 'https://github.com/pypa/sampleproject/'
+        'Bug Reports': 'https://github.com/DSAAR/amorf/issues',
+        'Source': 'https://github.com/DSAAR/amorf', 
+        'Documentation': 'https://amorf.readthedocs.io/en/latest/'
     },
 )
