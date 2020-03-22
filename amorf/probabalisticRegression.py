@@ -357,6 +357,7 @@ class GaussianProcessAutoregressiveRegression:
         raise NotImplementedError
 
 
+#TODO: AAAdd test
 class GaussianProcessRegression:
     """Wrapper around sklearns GaussianProcessRegressor (sklearn.gaussian_process.GaussienProcessRegressor) 
     (from sklearn Documentation https://github.com/scikit-learn/scikit-learn/blob/1495f6924/sklearn/gaussian_process/gpr.py)
