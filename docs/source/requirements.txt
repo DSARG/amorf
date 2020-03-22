@@ -1,4 +1,4 @@
-pyro-ppl>=1.0.0
+pyro-ppl
 numpy>=1.17.2
 liac-arff>=2.4
 matplotlib==2.2.3
