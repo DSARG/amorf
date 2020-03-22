@@ -46,13 +46,13 @@ print(arrmse(prediction, y_test)) #print error
 
 ## Documentation 
 
-Here be Link to [ReadTheDocs](https://readthedocs.org/)
+The [documentation](https://amorf.readthedocs.io/en/latest/) is hosted via [ReadTheDocs](https://readthedocs.org)
 
 ## Running The Tests 
 Clone repository
 
 ```bash 
-git clone https:\\xxx
+git clone https://github.com/DSAAR/amorf/
 ```
 Change directory 
 ```bash 
@@ -68,6 +68,6 @@ python -m unittest discover -s tests -p 'test_*.py'
 
 ## License 
 
-To be anounced
+MIT License
 
 
