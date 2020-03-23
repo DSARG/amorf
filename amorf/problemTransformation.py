@@ -88,7 +88,9 @@ class SingleTargetMethod:
         result = self.MORegressor.predict(X_test)
         return result
 
-#FIXME: Wrong Output (100..0..100)
+# FIXME: Wrong Output (100..0..100)
+
+
 class AutoEncoderRegression:
     """Regressor that uses an Autoencoder to reduce dimensionality of target variables 
 
@@ -109,7 +111,7 @@ class AutoEncoderRegression:
         patience (int,optional): Stop training after p continous incrementations. Default: None
         training_limit (int,optional): After specified number of epochs training will be terminated, regardless of EarlyStopping stopping. Default: 100
         verbosity (int,optional): 0 to only print errors, 1 (default) to print status information. Default: 1
-        print_after_epochs (int,optional): Specifies after how many epochs training and validation error will be printed to command line. Default: 500
+        print_after_epochs (int,optional): Specifies after how many epochs training and validation loss will be printed to command line. Default: 500
     """
 
     def __init__(self, regressor='gradientboost', custom_regressor=None, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=500):
@@ -211,17 +213,17 @@ class AutoEncoderRegression:
                 model.load_state_dict(stopper.best_model['state_dict'])
             # ===================log========================
             if epochs % self.print_after_epochs == 0:
-                printMessage('Epoch {}\nValidation Error: {}\nTrain Error:{}'.format(
+                printMessage('Epoch {}\nValidation Loss: {}\nTrain Loss:{}'.format(
                     epochs, loss, validation_loss), self.verbosity)
             epochs += 1
             if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
         y_pred_train = model(y_train_t)
-        final_train_error = criterion(y_pred_train, y_train_t)
-        final_validation_error = criterion(y_pred_validate, y_validate_t)
-        printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
-            epochs, final_train_error, final_validation_error), self.verbosity)
+        final_train_loss = criterion(y_pred_train, y_train_t)
+        final_validation_loss = criterion(y_pred_validate, y_validate_t)
+        printMessage("Final Epochs: {} \nFinal Train Loss: {}\nFinal Validation Loss: {}".format(
+            epochs, final_train_loss, final_validation_loss), self.verbosity)
 
         self.best_model = autoencoder(n_targets)
         self.best_model.load_state_dict(torch.load(self.path))

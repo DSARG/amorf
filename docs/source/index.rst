@@ -26,7 +26,7 @@ Getting Started
 ---------------
 .. code-block:: python
 
-    import amorf.NeuralNetRegression as nnr 
+    import amorf.neuralNetRegression as nnr 
     from amorf.metrics import average_relative_root_mean_squared_error as arrmse
 
     # for data generation
