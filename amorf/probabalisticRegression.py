@@ -35,7 +35,7 @@ class BayesianNeuralNetworkRegression:
         patience (int,optional): Stop training after p continous incrementations. Default: None
         training_limit (int,optional): After specified number of epochs training will be terminated, regardless of early stopping. Default: 100
         verbosity (int,optional): 0 to only print errors, 1 (default) to print status information. Default: 1
-        print_after_epochs (int,optional): Specifies after how many epochs training and validation error will be printed to command line. Default: 500
+        print_after_epochs (int,optional): Specifies after how many epochs training and validation loss will be printed to command line. Default: 500
     """
 
     def __init__(self, batch_size=None, shuffle=False, learning_rate=1e-3, use_gpu=False, patience=None, training_limit=100, verbosity=1, print_after_epochs=500):
@@ -100,29 +100,29 @@ class BayesianNeuralNetworkRegression:
                 loss_batch = self.svi.step(batch_X, batch_y)
                 losses.append(loss_batch)
 
-            validation_error = self.svi.evaluate_loss(
+            validation_loss = self.svi.evaluate_loss(
                 X_validate_t, y_validate_t)
-            train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
+            train_loss = self.svi.evaluate_loss(X_train_t, y_train_t)
             if self.patience is not None:
-                stop = stopper.stop(validation_error, self.net)
+                stop = stopper.stop(validation_loss, self.net)
             # if stop is True and self.patience > 1:
             #     # TODO: add loading of best,guide, optimizer and model here
             #     self.net = stopper.best_model
             #     self.svi.
             if epochs % self.print_after_epochs == 0:
-                printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
-                    epochs, validation_error, train_error), self.verbosity)
+                printMessage('Epoch: {}\nValidation Loss: {} \nTrain Loss: {}'.format(
+                    epochs, validation_loss, train_loss), self.verbosity)
 
             epochs += 1
 
             if self.training_limit is not None and self.training_limit <= epochs:
                 stop = True
 
-        final_train_error = self.svi.evaluate_loss(X_train_t, y_train_t)
-        final_validation_error = self.svi.evaluate_loss(
+        final_train_loss = self.svi.evaluate_loss(X_train_t, y_train_t)
+        final_validation_loss = self.svi.evaluate_loss(
             X_validate_t, y_validate_t)
-        printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
-            epochs, final_train_error, final_validation_error), self.verbosity)
+        printMessage("Final Epochs: {} \nFinal Train Loss: {}\nFinal Validation Loss: {}".format(
+            epochs, final_train_loss, final_validation_loss), self.verbosity)
         return self
 
     def predict(self, X_test, num_samples=100):

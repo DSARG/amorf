@@ -111,12 +111,12 @@ class NeuralNetRegressor:
 
             if epochs % self.print_after_epochs == 0:
                 y_pred_train = self.model(X_train_t)
-                validation_error = average_relative_root_mean_squared_error(
+                validation_loss = average_relative_root_mean_squared_error(
                     y_pred_val, y_validate_t)
-                train_error = average_relative_root_mean_squared_error(
+                train_loss = average_relative_root_mean_squared_error(
                     y_pred_train, y_train_t)
-                printMessage('Epoch: {}\nValidation Error: {} \nTrain Error: {}'.format(
-                    epochs, validation_error, train_error), self.verbosity)
+                printMessage('Epoch: {}\nValidation Loss: {} \nTrain Loss: {}'.format(
+                    epochs, validation_loss, train_loss), self.verbosity)
 
             if self.patience is not None:
                 stop = stopper.stop(validation_loss, self.model) 
@@ -127,13 +127,13 @@ class NeuralNetRegressor:
                 stop = True
 
         y_pred_train = self.model(X_train_t)
-        final_train_error = average_relative_root_mean_squared_error(
+        final_train_loss = average_relative_root_mean_squared_error(
             y_pred_train, y_train_t)
-        final_validation_error = average_relative_root_mean_squared_error(
+        final_validation_loss = average_relative_root_mean_squared_error(
             y_pred_val, y_validate_t)
 
-        printMessage("Final Epochs: {} \nFinal Train Error: {}\nFinal Validation Error: {}".format(
-            epochs, final_train_error, final_validation_error), self.verbosity)
+        printMessage("Final Epochs: {} \nFinal Train Loss: {}\nFinal Validation Loss: {}".format(
+            epochs, final_train_loss, final_validation_loss), self.verbosity)
 
         return self
 
