@@ -60,20 +60,20 @@ class TestLinearNeuralNet(unittest.TestCase):
                         result.dtype is numpy.dtype('float64'))
 
     def test_predict_with_GPU(self):
+        if torch.cuda.is_available():
+            model = nnRegressor.Linear_NN_Model(
+                self.input_dim, self.target_dim, 'mean')
+            fittedReg = nnRegressor.NeuralNetRegressor(model=model, patience=1, use_gpu=True).fit(
+                self.X_train, self.y_train)
 
-        model = nnRegressor.Linear_NN_Model(
-            self.input_dim, self.target_dim, 'mean')
-        fittedReg = nnRegressor.NeuralNetRegressor(model=model, patience=1, use_gpu=True).fit(
-            self.X_train, self.y_train)
+            result = fittedReg.predict(self.X_test)
 
-        result = fittedReg.predict(self.X_test)
-
-        self.assertEqual(next(fittedReg.model.parameters()).is_cuda, True)
-        self.assertEqual(
-            result.shape, (len(self.X_test), len(self.y_test[0, :])))
-        self.assertTrue(type(result) is numpy.ndarray)
-        self.assertTrue(result.dtype is numpy.dtype('float32') or
-                        result.dtype is numpy.dtype('float64'))
+            self.assertEqual(next(fittedReg.model.parameters()).is_cuda, True)
+            self.assertEqual(
+                result.shape, (len(self.X_test), len(self.y_test[0, :])))
+            self.assertTrue(type(result) is numpy.ndarray)
+            self.assertTrue(result.dtype is numpy.dtype('float32') or
+                            result.dtype is numpy.dtype('float64'))
 
     def test_save_load(self):
         model = nnRegressor.Linear_NN_Model(
@@ -136,21 +136,22 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
                         or result.dtype is numpy.dtype('float64'))
 
     def test_predict_with_GPU(self):
-        input_dim = len(self.X_train[0, :])
-        target_dim = len(self.y_train[0, :])
+        if torch.cuda.is_available():
+            input_dim = len(self.X_train[0, :])
+            target_dim = len(self.y_train[0, :])
 
-        model = nnRegressor.Convolutional_NN_Model(input_dim, target_dim)
-        fittedReg = nnRegressor.NeuralNetRegressor(model=model, patience=1, use_gpu=True).fit(
-            self.X_train, self.y_train)
+            model = nnRegressor.Convolutional_NN_Model(input_dim, target_dim)
+            fittedReg = nnRegressor.NeuralNetRegressor(model=model, patience=1, use_gpu=True).fit(
+                self.X_train, self.y_train)
 
-        result = fittedReg.predict(self.X_test)
+            result = fittedReg.predict(self.X_test)
 
-        self.assertEqual(next(fittedReg.model.parameters()).is_cuda, True)
-        self.assertEqual(
-            result.shape, (len(self.X_test), len(self.y_test[0, :])))
-        self.assertTrue(type(result) is numpy.ndarray)
-        self.assertTrue(result.dtype is numpy.dtype('float32') or
-                        result.dtype is numpy.dtype('float64'))
+            self.assertEqual(next(fittedReg.model.parameters()).is_cuda, True)
+            self.assertEqual(
+                result.shape, (len(self.X_test), len(self.y_test[0, :])))
+            self.assertTrue(type(result) is numpy.ndarray)
+            self.assertTrue(result.dtype is numpy.dtype('float32') or
+                            result.dtype is numpy.dtype('float64'))
 
     def test_save_load(self):
         model = nnRegressor.Convolutional_NN_Model(
