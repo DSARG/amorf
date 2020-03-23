@@ -81,10 +81,10 @@ class TestLinearNeuralNet(unittest.TestCase):
         reg = nnRegressor.NeuralNetRegressor(
             model=model, patience=1, use_gpu=True)
         reg.save('test')
-        self.assertTrue(os.path.exists('test.ckpt'))
+        self.assertTrue(os.path.exists('test'))
 
         newReg = nnRegressor.NeuralNetRegressor()
-        newReg.load('test.ckpt')
+        newReg.load('test')
         self.assertEquals(newReg.model.fc1.in_features, self.input_dim)
         self.assertEquals(newReg.model.fc3.out_features, self.target_dim)
 
@@ -159,10 +159,10 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
         reg = nnRegressor.NeuralNetRegressor(
             model=model, patience=1, use_gpu=True)
         reg.save('testCNN')
-        self.assertTrue(os.path.exists('testCNN.ckpt'))
+        self.assertTrue(os.path.exists('testCNN'))
 
         newReg = nnRegressor.NeuralNetRegressor()
-        newReg.load('testCNN.ckpt')
+        newReg.load('testCNN')
         self.assertEquals(newReg.model.input_dim, self.input_dim)
         self.assertEquals(newReg.model.output_dim, self.target_dim)
 
@@ -176,9 +176,3 @@ class TestConvolutionalNeuralNet(unittest.TestCase):
 
         score = fittedReg.score(self.X_test, self.y_test)
 
-
-class TestFullScenarios(unittest.TestCase):
-    pass
-    # TODO: def Scenario With GPU and With Batch Mechanism - Linear
-
-    # TODO: def Scenaro With GPU and With Batch Mechanis - Convolutional
