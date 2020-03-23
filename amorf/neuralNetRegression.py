@@ -132,7 +132,7 @@ class NeuralNetRegressor:
         final_validation_loss = average_relative_root_mean_squared_error(
             y_pred_val, y_validate_t)
 
-        printMessage("Final Epochs: {} \nFinal Train Loss: {}\nFinal Validation Los: {}".format(
+        printMessage("Final Epochs: {} \nFinal Train Loss: {}\nFinal Validation Loss: {}".format(
             epochs, final_train_loss, final_validation_loss), self.verbosity)
 
         return self
