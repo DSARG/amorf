@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r docs/source/requirements.txts
+        pip install -r docs/source/requirements.txt
     - name: Test with pytest
       run: |
         pip install pytest
