@@ -1,3 +1,4 @@
+![Python Application](https://github.com/DSARG/amorf/workflows/Python%20application/badge.svg)
 # amorf - A Multi-Output Regression Framework
 
 **This Project is still a work in Progress** 
