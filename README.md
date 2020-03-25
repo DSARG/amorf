@@ -1,4 +1,7 @@
-[![Documentation Status](https://readthedocs.org/projects/amorf/badge/?version=latest)](https://amorf.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/amorf/badge/?version=latest)](https://amorf.readthedocs.io/en/latest/?badge=latest) 
+[![PyPI version shields.io](https://img.shields.io/pypi/v/amorf.svg)](https://pypi.org/project/amorf/) 
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/amorf.svg)](https://pypi.python.org/pypi/ansicolortags/)
+
 # amorf - A Multi-Output Regression Framework
 
 **This Project is still a work in Progress** 
